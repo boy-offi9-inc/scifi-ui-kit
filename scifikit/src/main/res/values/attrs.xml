@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <declare-styleable name="HudFrameView">
+        <attr name="sfAccentColor" format="color" />
+        <attr name="sfFillColor" format="color" />
+        <attr name="sfChamfer" format="dimension" />
+        <attr name="sfStrokeWidth" format="dimension" />
+        <attr name="sfBracketLength" format="dimension" />
+        <attr name="sfScanlines" format="boolean" />
+        <attr name="sfSweep" format="boolean" />
+    </declare-styleable>
+
+    <declare-styleable name="GlitchTextView">
+        <attr name="android:text" />
+        <attr name="android:textSize" />
+        <attr name="android:textColor" />
+        <attr name="sfSplitColorA" format="color" />
+        <attr name="sfSplitColorB" format="color" />
+        <attr name="sfIntensity" format="float" />
+        <attr name="sfGlitchIntervalMs" format="integer" />
+        <attr name="sfDecodeDurationMs" format="integer" />
+    </declare-styleable>
+
+</resources>

@@ -1,0 +1,65 @@
+name: Bug report
+description: Something looks wrong, behaves wrong or crashes
+labels: [bug]
+body:
+  - type: input
+    id: version
+    attributes:
+      label: SciFiKit version
+      placeholder: v0.2.1
+    validations:
+      required: true
+  - type: dropdown
+    id: toolkit
+    attributes:
+      label: UI toolkit
+      options:
+        - XML Views
+        - Jetpack Compose
+        - Both
+    validations:
+      required: true
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      options:
+        - HudFrame / HudFrameView
+        - GlitchText / GlitchTextView
+        - HoloRadar / HoloRadarView
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: device
+    attributes:
+      label: Device and Android version
+      placeholder: Pixel 7, Android 14
+    validations:
+      required: true
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Describe what you see. A screenshot or screen recording helps a lot.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect to happen?
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      description: Include your XML or Compose code in fenced code blocks if you can.
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logcat output
+      description: Only needed for crashes.
+      render: shell

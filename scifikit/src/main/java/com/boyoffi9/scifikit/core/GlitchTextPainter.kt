@@ -35,9 +35,6 @@ class GlitchTextPainter {
     private var startMs = -1L
     private var forcedBurstUntilMs = 0L
 
-    /** Extra room left and right so displaced slices are not clipped. */
-    val marginPx: Float get() = textSizePx * 0.3f
-
     fun restart(nowMs: Long) {
         startMs = nowMs
     }
@@ -48,7 +45,7 @@ class GlitchTextPainter {
 
     fun contentWidth(): Float {
         applyPaint()
-        return paint.measureText(text) + marginPx * 2f
+        return paint.measureText(text)
     }
 
     fun contentHeight(): Float {
@@ -66,7 +63,7 @@ class GlitchTextPainter {
 
         val baseline = -metrics.ascent
         val bottom = baseline + metrics.descent
-        val x = marginPx
+        val x = 0f
 
         val shown = if (animate) decoded(nowMs) else text
         val bursting = animate && isBursting(nowMs)

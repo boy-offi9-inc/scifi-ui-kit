@@ -22,4 +22,14 @@
         <attr name="sfDecodeDurationMs" format="integer" />
     </declare-styleable>
 
+    <declare-styleable name="HoloRadarView">
+        <!-- Shared with HudFrameView, declared once there -->
+        <attr name="sfAccentColor" />
+        <attr name="sfStrokeWidth" />
+        <attr name="sfSweep" />
+        <attr name="sfRings" format="integer" />
+        <attr name="sfRotationPeriodMs" format="integer" />
+        <attr name="sfBlipCount" format="integer" />
+    </declare-styleable>
+
 </resources>

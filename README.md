@@ -35,7 +35,7 @@ Add the dependency to your app module:
 
 ```kotlin
 dependencies {
-    implementation("com.github.boy-offi9-inc.scifi-ui-kit:scifikit:v0.2.1")
+    implementation("com.github.boy-offi9-inc:scifi-ui-kit:v0.2.1")
 }
 ```
 
@@ -43,7 +43,7 @@ Groovy DSL:
 
 ```groovy
 maven { url 'https://jitpack.io' }
-implementation 'com.github.boy-offi9-inc.scifi-ui-kit:scifikit:v0.2.1'
+implementation 'com.github.boy-offi9-inc:scifi-ui-kit:v0.2.1'
 ```
 
 The version is the Git tag of the release. The badge above shows the latest one.
@@ -179,4 +179,4 @@ Issues and pull requests are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md) fi
 
 ---
 
-Built by [Boy Offi9](https://github.com/Boy-Offi9).
+Built by [GHOST 099](https://github.com/Boy-Offi9).

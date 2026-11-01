@@ -3,14 +3,14 @@
 Sci-fi UI pieces for Android, drawn on Canvas. No GIFs, no Lottie, no image assets.
 Works in XML Views and Jetpack Compose. Both call the same painter classes, so they look identical.
 
-## What's in 0.1
+
+## What's in 0.2
 
 | Piece | View | Compose |
 |---|---|---|
 | Chamfered HUD panel: cut corners, neon glow, scanlines, corner brackets, light sweep around the border | `HudFrameView` | `HudFrame` |
 | Text that decodes from random characters, then glitches (RGB split + sliced displacement) in bursts and on touch | `GlitchTextView` | `GlitchText` |
-
-Planned: `HoloRadarView`, `HexGridView`.
+| Holographic radar: glowing rim, range rings, degree ticks, rotating sweep with a fading trail, blips that ping when the sweep hits them | `HoloRadarView` | `HoloRadar` |
 
 ## Usage (XML)
 
@@ -48,6 +48,31 @@ HudFrame(accentColor = Color(0xFF00E5FF)) {
 ```
 
 Change `replayKey` on `GlitchText`, or call `replay()` on the View, to play the decode again.
+
+### Radar
+
+```xml
+<com.boyoffi9.scifikit.HoloRadarView
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    app:sfAccentColor="#7CFFB2"
+    app:sfRings="4"
+    app:sfRotationPeriodMs="4000"
+    app:sfBlipCount="7" />
+```
+
+```kotlin
+HoloRadar(
+    size = 220.dp,
+    accentColor = Color(0xFF7CFFB2),
+    blips = listOf(
+        RadarBlip(angleDeg = 30f, distance = 0.6f),
+        RadarBlip(angleDeg = 200f, distance = 0.4f, color = 0xFFFF2D6F.toInt()),
+    ),
+)
+```
+
+Angles start at 3 o'clock and go clockwise. Distance is 0 at the centre and 1 at the rim.
 
 ## Design notes
 

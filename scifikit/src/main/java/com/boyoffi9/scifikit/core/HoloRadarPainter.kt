@@ -47,10 +47,15 @@ class HoloRadarPainter {
     private val arcRect = RectF()
 
     private var shader: SweepGradient? = null
-    private var shaderKey = ""
+    private var shaderCx = 0f
+    private var shaderCy = 0f
+    private var shaderAccent = 0
+    private var shaderTrail = 0f
 
     private var ticks = FloatArray(0)
-    private var ticksKey = ""
+    private var ticksCx = 0f
+    private var ticksCy = 0f
+    private var ticksRadius = 0f
 
     fun draw(canvas: Canvas, width: Float, height: Float, nowMs: Long) {
         val cx = width / 2f
@@ -98,7 +103,8 @@ class HoloRadarPainter {
 
         // Blips
         val blipR = strokePx * 2.4f
-        for (b in blips) {
+        for (i in blips.indices) {
+            val b = blips[i]
             val rad = Math.toRadians(b.angleDeg.toDouble())
             val bx = cx + cos(rad).toFloat() * radius * b.distance
             val by = cy + sin(rad).toFloat() * radius * b.distance
@@ -137,9 +143,13 @@ class HoloRadarPainter {
     }
 
     private fun ensureShader(cx: Float, cy: Float) {
-        val key = "$cx,$cy,$accentColor,$trailDeg"
-        if (key == shaderKey && shader != null) return
-        shaderKey = key
+        if (shader != null && cx == shaderCx && cy == shaderCy &&
+            accentColor == shaderAccent && trailDeg == shaderTrail
+        ) return
+        shaderCx = cx
+        shaderCy = cy
+        shaderAccent = accentColor
+        shaderTrail = trailDeg
         // Transparent until the last trailDeg degrees before 0, then ramps up
         // to the leading edge. drawArc(-trailDeg, trailDeg) paints exactly that part.
         shader = SweepGradient(
@@ -151,9 +161,10 @@ class HoloRadarPainter {
     }
 
     private fun ensureTicks(cx: Float, cy: Float, radius: Float) {
-        val key = "$cx,$cy,$radius"
-        if (key == ticksKey) return
-        ticksKey = key
+        if (ticks.isNotEmpty() && cx == ticksCx && cy == ticksCy && radius == ticksRadius) return
+        ticksCx = cx
+        ticksCy = cy
+        ticksRadius = radius
         val count = 36
         val out = FloatArray(count * 4)
         for (i in 0 until count) {

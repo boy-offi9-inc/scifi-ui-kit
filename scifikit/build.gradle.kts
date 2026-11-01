@@ -37,9 +37,7 @@ android {
 
 dependencies {
     implementation("androidx.core:core-ktx:1.13.1")
-
-    // Compose is compileOnly: View-only apps don't pull it in,
-    // Compose apps already have it.
+    
     compileOnly(platform("androidx.compose:compose-bom:2024.06.00"))
     compileOnly("androidx.compose.ui:ui")
     compileOnly("androidx.compose.foundation:foundation")
@@ -52,7 +50,7 @@ afterEvaluate {
                 from(components["release"])
                 groupId = "com.github.Boy-Offi9"
                 artifactId = "scifikit"
-                version = "0.1.0"
+                version = "0.2.0"
             }
         }
     }

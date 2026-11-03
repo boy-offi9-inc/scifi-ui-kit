@@ -19,11 +19,15 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.boyoffi9.scifikit.core.HoloRadarPainter
 import com.boyoffi9.scifikit.core.RadarBlip
-import com.boyoffi9.scifikit.core.animationsEnabled
+import com.boyoffi9.scifikit.core.RadarConfig
+import com.boyoffi9.scifikit.core.RadarMode
 
 private val DefaultBlips = HoloRadarPainter.defaultBlips(7)
 
-/** Holographic radar. Same renderer as [com.boyoffi9.scifikit.HoloRadarView]. */
+/**
+ * Holographic radar. Same renderer as [com.boyoffi9.scifikit.HoloRadarView].
+ * Pick a look with [radar], for example `RadarMode.Tactical.config`.
+ */
 @Composable
 fun HoloRadar(
     modifier: Modifier = Modifier,
@@ -33,10 +37,11 @@ fun HoloRadar(
     rings: Int = 4,
     sweep: Boolean = true,
     rotationPeriodMs: Long = 4000L,
+    radar: RadarConfig = RadarMode.Classic.config,
     blips: List<RadarBlip> = DefaultBlips,
 ) {
     val painter = remember { HoloRadarPainter() }
-    val animate = remember { animationsEnabled() }
+    val animate = rememberAnimationsEnabled()
     var time by remember { mutableLongStateOf(0L) }
 
     if (animate && sweep) {
@@ -56,6 +61,7 @@ fun HoloRadar(
                 painter.rings = rings.coerceAtLeast(1)
                 painter.sweep = sweep
                 painter.rotationPeriodMs = rotationPeriodMs
+                painter.radar = radar
                 painter.blips = blips
                 painter.animate = animate
                 drawIntoCanvas { painter.draw(it.nativeCanvas, this.size.width, this.size.height, time) }

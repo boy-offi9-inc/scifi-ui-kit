@@ -12,8 +12,8 @@ No GIFs, no Lottie, no image assets. Works in XML Views and Jetpack Compose.
 | Component | View | Compose | What it does |
 |---|---|---|---|
 | HUD frame | `HudFrameView` | `HudFrame` | Chamfered panel with neon glow, scanlines, corner brackets and a light segment that travels around the border. Holds your content. |
-| Glitch text | `GlitchTextView` | `GlitchText` | Text that decodes from random characters, then glitches in bursts (RGB split and sliced displacement) and when touched. |
-| Holo radar | `HoloRadarView` | `HoloRadar` | Radar with range rings, degree ticks, a rotating sweep with a fading trail, and blips that ping when the sweep reaches them. |
+| Glitch text | `GlitchTextView` | `GlitchText` | Text that decodes from random characters, then glitches in bursts (RGB split and sliced displacement) and when touched. Six decode modes, four glitch modes and four touch modes. |
+| Holo radar | `HoloRadarView` | `HoloRadar` | Radar with range rings, degree ticks, a rotating sweep with a fading trail, and blips that ping when the sweep reaches them. Five looks, from clean to CRT. |
 
 Both versions of each component call the same painter class, so they render identically.
 
@@ -35,7 +35,7 @@ Add the dependency to your app module:
 
 ```kotlin
 dependencies {
-    implementation("com.github.boy-offi9-inc:scifi-ui-kit:v0.2.1")
+    implementation("com.github.boy-offi9-inc:scifi-ui-kit:v0.3.0")
 }
 ```
 
@@ -43,7 +43,7 @@ Groovy DSL:
 
 ```groovy
 maven { url 'https://jitpack.io' }
-implementation 'com.github.boy-offi9-inc:scifi-ui-kit:v0.2.1'
+implementation 'com.github.boy-offi9-inc:scifi-ui-kit:v0.3.0'
 ```
 
 The version is the Git tag of the release. The badge above shows the latest one.
@@ -96,7 +96,7 @@ HudFrame(modifier = Modifier.fillMaxWidth()) {
 
 ## Glitch text
 
-The text decodes on attach, glitches briefly at a fixed interval, and glitches again on touch. Touches are not consumed, so a clickable parent still receives them.
+The text decodes on attach, glitches in bursts, and reacts to touch. Three independent settings shape it: how it **decodes**, how it **glitches** and how it responds to **touch**. Each has presets, and every preset can be fine-tuned.
 
 | XML attribute | Compose parameter | Default |
 |---|---|---|
@@ -105,15 +105,91 @@ The text decodes on attach, glitches briefly at a fixed interval, and glitches a
 | `android:textColor` | `color` | `#E8FDFF` |
 | `sfSplitColorA` | `splitColorA` | `#FF2D6F` |
 | `sfSplitColorB` | `splitColorB` | `#00E5FF` |
-| `sfIntensity` | `intensity` | 1.0 |
-| `sfGlitchIntervalMs` | `glitchIntervalMs` | 2600 |
-| `sfDecodeDurationMs` | `decodeDurationMs` | 900 |
+| `sfDecodeMode` | `decode` | `classic` |
+| `sfGlitchMode` | `glitch` | `standard` |
+| `sfTouchMode` | `touch` | `burst` |
+| `sfIntensity` | `intensity` | from the glitch mode |
+| `sfGlitchIntervalMs` | `glitchIntervalMs` | from the glitch mode |
+| `sfDecodeDurationMs` | `decodeDurationMs` | from the decode mode |
 
 Play the decode again with `replay()` on the View, or by changing `replayKey` in Compose.
 
+### Decode modes
+
+| Mode | Behaviour |
+|---|---|
+| `classic` | Left to right, 0.9 s. The original. |
+| `relaxed` | Slow and calm: 1.6 s, soft characters, slow swapping. |
+| `active` | Fast, and keeps shimmering after it resolves. |
+| `random` | Letters resolve in a random order. |
+| `centerOut` | Resolves from the middle outwards. |
+| `typewriter` | Types in with a block cursor, no scramble. |
+
+```xml
+<com.boyoffi9.scifikit.GlitchTextView
+    android:text="ACCESS GRANTED"
+    app:sfDecodeMode="active" />
+```
+
+```kotlin
+GlitchText(text = "ACCESS GRANTED", decode = DecodeMode.Active.config)
+```
+
+Fine-tune a preset with `copy`:
+
+```kotlin
+GlitchText(
+    text = "ACCESS GRANTED",
+    decode = DecodeMode.Relaxed.config.copy(
+        durationMs = 2400L,
+        charset = DecodeCharsets.Hex,
+        order = DecodeOrder.CenterOut,
+    ),
+)
+```
+
+`DecodeConfig` fields: `order`, `durationMs`, `charset`, `swapMs`, `shimmer`, `scramble`, `cursor`. In XML the same settings are `sfDecodeOrder`, `sfDecodeDurationMs`, `sfDecodeCharset`, `sfDecodeSwapMs`, `sfDecodeShimmer`, `sfDecodeScramble` and `sfDecodeCursor`, and each overrides the chosen mode.
+
+### Glitch modes
+
+| Mode | Behaviour |
+|---|---|
+| `subtle` | Rare, short, small. Easy to live with. |
+| `standard` | The original glitch. |
+| `violent` | Frequent, long, tearing hard. |
+| `signalLoss` | The text drops out and flickers during a burst. |
+
+Bursts in `subtle`, `violent` and `signalLoss` vary in length and position from cycle to cycle, so they never look metronomic. `GlitchConfig` fields: `intensity`, `intervalMs`, `burstMs`, `jitter`, `strips`, `sliceChance`, `sliceReach`, `splitIdle`, `splitBurst`, `stepMs`, `dropout`, `flicker`. XML overrides: `sfBurstDurationMs`, `sfGlitchJitter`, `sfGlitchStrips`, `sfGlitchSliceChance`, `sfGlitchSliceReach`, `sfGlitchDropout`, `sfGlitchFlicker`.
+
+### Touch modes
+
+| Mode | Behaviour |
+|---|---|
+| `burst` | A press triggers one burst. The default. |
+| `follow` | The glitch happens only around your finger and moves with it. |
+| `charge` | Holding builds intensity. Releasing after a full charge fires a large burst. |
+| `followCharge` | Both: the glitch window follows your finger and widens as it charges. |
+
+`TouchConfig` fields: `follow`, `charge`, `radius`, `chargeMs`, `chargeBoost`. XML overrides: `sfTouchRadius`, `sfChargeMs`, `sfChargeBoost`.
+
+In Compose, presses are never consumed, so a clickable parent still receives its tap. In Views, `burst` does not consume touches either, but `follow` and `charge` must, to track the drag, so a parent will not receive clicks from presses on the text itself.
+
+### Changing settings at runtime
+
+Every setting can be changed while the screen is showing:
+
+```kotlin
+glitchText.glitch = GlitchMode.Violent.config
+glitchText.decode = DecodeMode.Typewriter.config
+glitchText.touch = TouchMode.FollowCharge.config
+glitchText.splitColorA = Color.MAGENTA
+```
+
+Setting `decode` or `text` replays the decode. `HudFrameView` and `HoloRadarView` apply property changes the same way.
+
 ## Holo radar
 
-Angles start at 3 o'clock and increase clockwise. Distance is 0 at the centre and 1 at the rim. The view is 220dp square when sized with `wrap_content`.
+Angles start at 3 o'clock and increase clockwise. Distance is 0 at the centre and 1 at the rim. The view is 220dp square when sized with `wrap_content`. The radar is standalone: it does not need a frame or card around it.
 
 | XML attribute | Compose parameter | Default |
 |---|---|---|
@@ -123,23 +199,32 @@ Angles start at 3 o'clock and increase clockwise. Distance is 0 at the centre an
 | `sfRings` | `rings` | 4 |
 | `sfRotationPeriodMs` | `rotationPeriodMs` | 4000 |
 | `sfBlipCount` | `blips` | 7 generated blips |
+| `sfRadarMode` | `radar` | `classic` |
 | none | `size` | 220dp |
 
-XML:
+### Radar modes
+
+| Mode | Look |
+|---|---|
+| `classic` | Clean glowing rings and a round-dot sweep. The original. |
+| `tactical` | Diamond contacts, dashed rings, compass letters, a faint grid and a narrow sweep. |
+| `cyberpunk` | Square contacts alternating with a second colour, a doubled sweep line and flicker. |
+| `phosphor` | CRT look: long trail, lingering blips, scanlines. |
+| `hologram` | Cross contacts, a scan band moving over the disc and a hologram flicker. |
 
 ```xml
 <com.boyoffi9.scifikit.HoloRadarView
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     app:sfAccentColor="#7CFFB2"
+    app:sfRadarMode="tactical"
     app:sfBlipCount="8" />
 ```
-
-Compose, with your own contacts:
 
 ```kotlin
 HoloRadar(
     accentColor = Color(0xFF7CFFB2),
+    radar = RadarMode.Tactical.config,
     blips = listOf(
         RadarBlip(angleDeg = 30f, distance = 0.6f),
         RadarBlip(angleDeg = 200f, distance = 0.4f, color = 0xFFFF2D6F.toInt()),
@@ -147,13 +232,15 @@ HoloRadar(
 )
 ```
 
-In Views, set the `blips` property to a `List<RadarBlip>`. `RadarBlip` lives in `com.boyoffi9.scifikit.core`.
+`RadarConfig` fields: `blipShape` (`Dot`, `Diamond`, `Square`, `Cross`), `blipFade`, `trailDeg`, `trailAlpha`, `ringsDashed`, `ticks`, `cardinals`, `grid`, `scanlines`, `scanBand`, `glow`, `fill`, `flicker`, `split`, `secondaryColor`. XML overrides: `sfRadarTrailDeg`, `sfRadarGlow`, `sfRadarFlicker`, `sfRadarScanlines`, `sfRadarSecondaryColor`.
+
+In Views, set the `blips` property to a `List<RadarBlip>` and the `radar` property to change the look. `RadarBlip` and the config types live in `com.boyoffi9.scifikit.core`.
 
 ## Accessibility and motion
 
 - `GlitchText` exposes its text as the content description, so screen readers read the real string, not the scrambled frames.
 - `HoloRadar` is treated as decorative unless you give it a content description.
-- On Android 8.0 and later, the components draw one static frame when the user has turned animations off. Below 8.0 the system gives no such signal, so they always animate.
+- On Android 8.0 and later, the components draw one static frame when the user has turned animations off, and Compose follows the setting live. Below 8.0 the system gives no such signal, so they always animate.
 - Text sizes are in sp and follow the user's font scale.
 
 ## Architecture
@@ -166,7 +253,6 @@ Glow is faked with wide, low-alpha strokes, so there is no blur, no bitmap and n
 
 - Animated components redraw every frame while visible. Performance on low-end devices has not been profiled yet.
 - In Views, glitch slices that move past the edge of `GlitchTextView` are clipped. Set `android:clipChildren="false"` on the parent to let them overshoot. Compose does not clip them.
-- The system animation setting is read once when a composable first appears, so it does not update live.
 - Compose must be on your classpath to use the composables.
 
 ## Demo app
@@ -179,4 +265,4 @@ Issues and pull requests are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md) fi
 
 ---
 
-Built by [GHOST 099](https://github.com/Boy-Offi9).
+Built by [Boy Offi9](https://github.com/Boy-Offi9).

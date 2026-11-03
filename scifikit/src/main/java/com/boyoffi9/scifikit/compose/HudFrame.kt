@@ -20,7 +20,6 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.boyoffi9.scifikit.core.HudFramePainter
-import com.boyoffi9.scifikit.core.animationsEnabled
 
 /** Chamfered sci-fi HUD panel. Same renderer as [com.boyoffi9.scifikit.HudFrameView]. */
 @Composable
@@ -37,7 +36,7 @@ fun HudFrame(
     content: @Composable BoxScope.() -> Unit,
 ) {
     val painter = remember { HudFramePainter() }
-    val animate = remember { animationsEnabled() }
+    val animate = rememberAnimationsEnabled()
     var time by remember { mutableLongStateOf(0L) }
 
     if (animate && (scanlines || sweep)) {

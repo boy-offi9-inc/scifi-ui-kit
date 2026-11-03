@@ -50,6 +50,27 @@ class HudFrameView @JvmOverloads constructor(
             invalidate()
         }
 
+    var chamferPx: Float
+        get() = painter.chamferPx
+        set(value) {
+            painter.chamferPx = value
+            invalidate()
+        }
+
+    var strokeWidthPx: Float
+        get() = painter.strokePx
+        set(value) {
+            painter.strokePx = value
+            invalidate()
+        }
+
+    var bracketLengthPx: Float
+        get() = painter.bracketPx
+        set(value) {
+            painter.bracketPx = value
+            invalidate()
+        }
+
     init {
         setWillNotDraw(false)
         val density = context.resources.displayMetrics.density
@@ -68,6 +89,11 @@ class HudFrameView @JvmOverloads constructor(
             painter.scanlines = getBoolean(R.styleable.HudFrameView_sfScanlines, true)
             painter.sweep = getBoolean(R.styleable.HudFrameView_sfSweep, true)
         }
+    }
+
+    override fun onWindowFocusChanged(hasWindowFocus: Boolean) {
+        super.onWindowFocusChanged(hasWindowFocus)
+        if (hasWindowFocus) invalidate()
     }
 
     override fun dispatchDraw(canvas: Canvas) {

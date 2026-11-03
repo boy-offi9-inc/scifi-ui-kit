@@ -1,6 +1,7 @@
 package com.boyoffi9.scifikit
 
 import android.content.Context
+import android.content.res.TypedArray
 import android.graphics.Canvas
 import android.os.SystemClock
 import android.util.AttributeSet
@@ -8,6 +9,8 @@ import android.view.View
 import androidx.core.content.withStyledAttributes
 import com.boyoffi9.scifikit.core.HoloRadarPainter
 import com.boyoffi9.scifikit.core.RadarBlip
+import com.boyoffi9.scifikit.core.RadarConfig
+import com.boyoffi9.scifikit.core.RadarMode
 import com.boyoffi9.scifikit.core.animationsEnabled
 
 /**
@@ -45,6 +48,34 @@ class HoloRadarView @JvmOverloads constructor(
             invalidate()
         }
 
+    var radar: RadarConfig
+        get() = painter.radar
+        set(value) {
+            painter.radar = value
+            invalidate()
+        }
+
+    var rings: Int
+        get() = painter.rings
+        set(value) {
+            painter.rings = value.coerceAtLeast(1)
+            invalidate()
+        }
+
+    var rotationPeriodMs: Long
+        get() = painter.rotationPeriodMs
+        set(value) {
+            painter.rotationPeriodMs = value
+            invalidate()
+        }
+
+    var strokeWidthPx: Float
+        get() = painter.strokePx
+        set(value) {
+            painter.strokePx = value
+            invalidate()
+        }
+
     init {
         val density = context.resources.displayMetrics.density
         defaultSizePx = (220f * density).toInt()
@@ -57,15 +88,40 @@ class HoloRadarView @JvmOverloads constructor(
             painter.rings = getInt(R.styleable.HoloRadarView_sfRings, painter.rings).coerceAtLeast(1)
             painter.rotationPeriodMs =
                 getInt(R.styleable.HoloRadarView_sfRotationPeriodMs, painter.rotationPeriodMs.toInt()).toLong()
+            painter.radar = readRadar()
             if (hasValue(R.styleable.HoloRadarView_sfBlipCount)) {
                 painter.blips = HoloRadarPainter.defaultBlips(getInt(R.styleable.HoloRadarView_sfBlipCount, 0))
             }
         }
 
-        // Purely decorative unless the app gives it a description.
         if (contentDescription.isNullOrEmpty()) {
             importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_NO
         }
+    }
+
+    private fun TypedArray.readRadar(): RadarConfig {
+        var config = RadarMode.entries[getInt(R.styleable.HoloRadarView_sfRadarMode, 0)].config
+        if (hasValue(R.styleable.HoloRadarView_sfRadarTrailDeg)) {
+            config = config.copy(trailDeg = getFloat(R.styleable.HoloRadarView_sfRadarTrailDeg, 70f))
+        }
+        if (hasValue(R.styleable.HoloRadarView_sfRadarGlow)) {
+            config = config.copy(glow = getFloat(R.styleable.HoloRadarView_sfRadarGlow, 1f))
+        }
+        if (hasValue(R.styleable.HoloRadarView_sfRadarFlicker)) {
+            config = config.copy(flicker = getFloat(R.styleable.HoloRadarView_sfRadarFlicker, 0f))
+        }
+        if (hasValue(R.styleable.HoloRadarView_sfRadarScanlines)) {
+            config = config.copy(scanlines = getBoolean(R.styleable.HoloRadarView_sfRadarScanlines, false))
+        }
+        if (hasValue(R.styleable.HoloRadarView_sfRadarSecondaryColor)) {
+            config = config.copy(secondaryColor = getColor(R.styleable.HoloRadarView_sfRadarSecondaryColor, 0))
+        }
+        return config
+    }
+
+    override fun onWindowFocusChanged(hasWindowFocus: Boolean) {
+        super.onWindowFocusChanged(hasWindowFocus)
+        if (hasWindowFocus) invalidate()
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {

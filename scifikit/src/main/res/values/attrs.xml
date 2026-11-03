@@ -2,24 +2,155 @@
 <resources>
 
     <declare-styleable name="HudFrameView">
-        <attr name="sfAccentColor" format="color" />
-        <attr name="sfFillColor" format="color" />
-        <attr name="sfChamfer" format="dimension" />
-        <attr name="sfStrokeWidth" format="dimension" />
-        <attr name="sfBracketLength" format="dimension" />
-        <attr name="sfScanlines" format="boolean" />
-        <attr name="sfSweep" format="boolean" />
+        <attr
+            name="sfAccentColor"
+            format="color" />
+        <attr
+            name="sfFillColor"
+            format="color" />
+        <attr
+            name="sfChamfer"
+            format="dimension" />
+        <attr
+            name="sfStrokeWidth"
+            format="dimension" />
+        <attr
+            name="sfBracketLength"
+            format="dimension" />
+        <attr
+            name="sfScanlines"
+            format="boolean" />
+        <attr
+            name="sfSweep"
+            format="boolean" />
     </declare-styleable>
 
     <declare-styleable name="GlitchTextView">
         <attr name="android:text" />
         <attr name="android:textSize" />
         <attr name="android:textColor" />
-        <attr name="sfSplitColorA" format="color" />
-        <attr name="sfSplitColorB" format="color" />
-        <attr name="sfIntensity" format="float" />
-        <attr name="sfGlitchIntervalMs" format="integer" />
-        <attr name="sfDecodeDurationMs" format="integer" />
+        <attr
+            name="sfSplitColorA"
+            format="color" />
+        <attr
+            name="sfSplitColorB"
+            format="color" />
+        <attr
+            name="sfIntensity"
+            format="float" />
+        <attr
+            name="sfGlitchIntervalMs"
+            format="integer" />
+        <attr name="sfGlitchMode">
+            <enum
+                name="subtle"
+                value="0" />
+            <enum
+                name="standard"
+                value="1" />
+            <enum
+                name="violent"
+                value="2" />
+            <enum
+                name="signalLoss"
+                value="3" />
+        </attr>
+        <attr
+            name="sfBurstDurationMs"
+            format="integer" />
+        <attr
+            name="sfGlitchJitter"
+            format="float" />
+        <attr
+            name="sfGlitchStrips"
+            format="integer" />
+        <attr
+            name="sfGlitchSliceChance"
+            format="float" />
+        <attr
+            name="sfGlitchSliceReach"
+            format="float" />
+        <attr
+            name="sfGlitchDropout"
+            format="float" />
+        <attr
+            name="sfGlitchFlicker"
+            format="float" />
+        <attr name="sfTouchMode">
+            <enum
+                name="burst"
+                value="0" />
+            <enum
+                name="follow"
+                value="1" />
+            <enum
+                name="charge"
+                value="2" />
+            <enum
+                name="followCharge"
+                value="3" />
+        </attr>
+        <attr
+            name="sfTouchRadius"
+            format="float" />
+        <attr
+            name="sfChargeMs"
+            format="integer" />
+        <attr
+            name="sfChargeBoost"
+            format="float" />
+        <attr
+            name="sfDecodeDurationMs"
+            format="integer" />
+        <attr name="sfDecodeMode">
+            <enum
+                name="classic"
+                value="0" />
+            <enum
+                name="relaxed"
+                value="1" />
+            <enum
+                name="active"
+                value="2" />
+            <enum
+                name="random"
+                value="3" />
+            <enum
+                name="centerOut"
+                value="4" />
+            <enum
+                name="typewriter"
+                value="5" />
+        </attr>
+        <attr name="sfDecodeOrder">
+            <enum
+                name="leftToRight"
+                value="0" />
+            <enum
+                name="rightToLeft"
+                value="1" />
+            <enum
+                name="centerOut"
+                value="2" />
+            <enum
+                name="random"
+                value="3" />
+        </attr>
+        <attr
+            name="sfDecodeCharset"
+            format="string" />
+        <attr
+            name="sfDecodeSwapMs"
+            format="integer" />
+        <attr
+            name="sfDecodeShimmer"
+            format="float" />
+        <attr
+            name="sfDecodeScramble"
+            format="boolean" />
+        <attr
+            name="sfDecodeCursor"
+            format="boolean" />
     </declare-styleable>
 
     <declare-styleable name="HoloRadarView">
@@ -27,9 +158,47 @@
         <attr name="sfAccentColor" />
         <attr name="sfStrokeWidth" />
         <attr name="sfSweep" />
-        <attr name="sfRings" format="integer" />
-        <attr name="sfRotationPeriodMs" format="integer" />
-        <attr name="sfBlipCount" format="integer" />
+        <attr
+            name="sfRings"
+            format="integer" />
+        <attr
+            name="sfRotationPeriodMs"
+            format="integer" />
+        <attr
+            name="sfBlipCount"
+            format="integer" />
+        <attr name="sfRadarMode">
+            <enum
+                name="classic"
+                value="0" />
+            <enum
+                name="tactical"
+                value="1" />
+            <enum
+                name="cyberpunk"
+                value="2" />
+            <enum
+                name="phosphor"
+                value="3" />
+            <enum
+                name="hologram"
+                value="4" />
+        </attr>
+        <attr
+            name="sfRadarTrailDeg"
+            format="float" />
+        <attr
+            name="sfRadarGlow"
+            format="float" />
+        <attr
+            name="sfRadarFlicker"
+            format="float" />
+        <attr
+            name="sfRadarScanlines"
+            format="boolean" />
+        <attr
+            name="sfRadarSecondaryColor"
+            format="color" />
     </declare-styleable>
 
 </resources>

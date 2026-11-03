@@ -24,13 +24,24 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
+import com.boyoffi9.scifikit.core.DecodeConfig
+import com.boyoffi9.scifikit.core.DecodeMode
+import com.boyoffi9.scifikit.core.GlitchConfig
+import com.boyoffi9.scifikit.core.GlitchMode
 import com.boyoffi9.scifikit.core.GlitchTextPainter
-import com.boyoffi9.scifikit.core.animationsEnabled
+import com.boyoffi9.scifikit.core.TouchConfig
+import com.boyoffi9.scifikit.core.TouchMode
 
 /**
  * Text that decodes from random characters, glitches in bursts, and glitches
  * when pressed. Same renderer as [com.boyoffi9.scifikit.GlitchTextView].
  *
+ * Pick a glitch style with [glitch], for example `GlitchMode.Violent.config`;
+ * [intensity] and [glitchIntervalMs] override just those two values.
+ * Pick a touch style with [touch]: `TouchMode.Follow` glitches under the finger,
+ * `TouchMode.Charge` builds up while held. Presses are never consumed.
+ * Pick a decode style with [decode], for example `DecodeMode.Active.config`, and
+ * tune it with `copy(...)`. [decodeDurationMs] overrides just the duration.
  * Change [replayKey] to play the decode animation again.
  */
 @Composable
@@ -41,14 +52,17 @@ fun GlitchText(
     color: Color = Color(0xFFE8FDFF),
     splitColorA: Color = Color(0xFFFF2D6F),
     splitColorB: Color = Color(0xFF00E5FF),
-    intensity: Float = 1f,
-    glitchIntervalMs: Long = 2600L,
-    decodeDurationMs: Long = 900L,
+    glitch: GlitchConfig = GlitchMode.Standard.config,
+    intensity: Float? = null,
+    glitchIntervalMs: Long? = null,
+    touch: TouchConfig = TouchMode.Burst.config,
+    decode: DecodeConfig = DecodeMode.Classic.config,
+    decodeDurationMs: Long? = null,
     replayKey: Any? = null,
 ) {
     val density = LocalDensity.current
     val painter = remember { GlitchTextPainter() }
-    val animate = remember { animationsEnabled() }
+    val animate = rememberAnimationsEnabled()
     var time by remember { mutableLongStateOf(0L) }
 
     painter.text = text
@@ -56,13 +70,17 @@ fun GlitchText(
     painter.color = color.toArgb()
     painter.splitColorA = splitColorA.toArgb()
     painter.splitColorB = splitColorB.toArgb()
-    painter.intensity = intensity
-    painter.glitchIntervalMs = glitchIntervalMs
-    painter.decodeDurationMs = decodeDurationMs
+    var glitchConfig = glitch
+    if (intensity != null) glitchConfig = glitchConfig.copy(intensity = intensity)
+    if (glitchIntervalMs != null) glitchConfig = glitchConfig.copy(intervalMs = glitchIntervalMs)
+    painter.glitch = glitchConfig
+    painter.touch = touch
+    val config = if (decodeDurationMs != null) decode.copy(durationMs = decodeDurationMs) else decode
+    painter.decode = config
     painter.animate = animate
 
     if (animate) {
-        LaunchedEffect(text, replayKey) {
+        LaunchedEffect(text, replayKey, config) {
             var first = true
             while (true) {
                 withFrameMillis { ms ->
@@ -87,8 +105,15 @@ fun GlitchText(
                 // Watch presses in the Initial pass and consume nothing, so a
                 // clickable parent (like a HudFrame button) still gets its tap.
                 awaitEachGesture {
-                    awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
-                    painter.triggerBurst(time)
+                    val down = awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
+                    painter.press(down.position.x, time)
+                    while (true) {
+                        val event = awaitPointerEvent(PointerEventPass.Initial)
+                        val change = event.changes.firstOrNull { it.id == down.id }
+                        if (change == null || !change.pressed) break
+                        painter.moveTo(change.position.x)
+                    }
+                    painter.release(time)
                 }
             }
             .drawBehind {

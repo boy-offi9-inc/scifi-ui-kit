@@ -59,11 +59,9 @@ class HudFramePainter {
         framePath.lineTo(l, t + c)
         framePath.close()
 
-        // Body
         fillPaint.color = fillColor
         canvas.drawPath(framePath, fillPaint)
 
-        // Scanlines, clipped to the panel shape
         if (scanlines && scanlineGapPx > 1f) {
             val gap = scanlineGapPx
             val offset = if (animate) (nowMs / 40f) % gap else 0f
@@ -79,7 +77,6 @@ class HudFramePainter {
             canvas.restore()
         }
 
-        // Neon border: two soft wide strokes fake the glow, then the crisp line
         strokePaint.strokeWidth = strokePx * 4f
         strokePaint.color = withAlpha(accentColor, 0.08f)
         canvas.drawPath(framePath, strokePaint)
@@ -90,7 +87,6 @@ class HudFramePainter {
         strokePaint.color = withAlpha(accentColor, 0.9f)
         canvas.drawPath(framePath, strokePaint)
 
-        // Brackets on the two square corners (top-right, bottom-left)
         val bl = min(bracketPx, min(r - l, b - t) / 3f)
         if (bl > 0f) {
             bracketPath.reset()
@@ -105,7 +101,6 @@ class HudFramePainter {
             canvas.drawPath(bracketPath, strokePaint)
         }
 
-        // Light segment travelling along the border
         if (sweep && animate) {
             measure.setPath(framePath, true)
             val len = measure.length

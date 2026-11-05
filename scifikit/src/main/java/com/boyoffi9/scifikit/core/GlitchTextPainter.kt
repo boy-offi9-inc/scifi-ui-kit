@@ -151,7 +151,7 @@ class GlitchTextPainter {
         if (bursting && g.dropout > 0f && hashOf(bucket, 7) % 1000 < g.dropout * 1000f) return
         val power = g.intensity * scale
         val split = if (bursting) {
-            textSizePx * g.splitBurst * power * (0.5f + (hashOf(bucket, 99) % 100) / 100f)
+            splitShift(g, textSizePx, power, (hashOf(bucket, 99) % 100) / 100f)
         } else {
             textSizePx * g.splitIdle * g.intensity
         }
@@ -188,7 +188,7 @@ class GlitchTextPainter {
             canvas.drawText(decoder.chars, 0, count, x, baseline, paint)
             return
         }
-        val shift = textSizePx * g.sliceReach * power
+        val shift = sliceShift(g, textSizePx, power) * if (layer == 3) REAL_SHARE else 1f
         val reach = textSizePx * 0.6f + shift
         val chance = (g.sliceChance * 100f).toInt()
         for (i in 0 until strips) {

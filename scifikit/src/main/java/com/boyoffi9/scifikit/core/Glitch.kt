@@ -61,6 +61,16 @@ enum class GlitchMode(val config: GlitchConfig) {
     ),
 }
 
+private const val MAX_SHIFT = 0.45f
+private const val MAX_SPLIT = 0.14f
+internal const val REAL_SHARE = 0.35f
+
+internal fun sliceShift(config: GlitchConfig, textSizePx: Float, power: Float): Float =
+    minOf(textSizePx * config.sliceReach * power, textSizePx * MAX_SHIFT)
+
+internal fun splitShift(config: GlitchConfig, textSizePx: Float, power: Float, variation: Float): Float =
+    minOf(textSizePx * config.splitBurst * power * (0.5f + variation), textSizePx * MAX_SPLIT)
+
 internal fun burstActive(config: GlitchConfig, elapsedMs: Long): Boolean {
     val interval = config.intervalMs
     if (elapsedMs < 0L || interval <= 0L || config.burstMs <= 0L || config.intensity <= 0f) return false

@@ -59,6 +59,7 @@ enum class GlitchMode(val config: GlitchConfig) {
             flicker = 0.5f,
         ),
     ),
+    OnTouch(GlitchConfig(intervalMs = 0L, splitIdle = 0f)),
 }
 
 private const val MAX_SHIFT = 0.45f

@@ -158,6 +158,7 @@ GlitchText(
 | `standard` | The original glitch. |
 | `violent` | Frequent, long, tearing hard. |
 | `signalLoss` | The text drops out and flickers during a burst. |
+| `onTouch` | Perfectly still until touched. No ambient glitching. |
 
 Bursts in `subtle`, `violent` and `signalLoss` vary in length and position from cycle to cycle, so they never look metronomic. `GlitchConfig` fields: `intensity`, `intervalMs`, `burstMs`, `jitter`, `strips`, `sliceChance`, `sliceReach`, `splitIdle`, `splitBurst`, `stepMs`, `dropout`, `flicker`. XML overrides: `sfBurstDurationMs`, `sfGlitchJitter`, `sfGlitchStrips`, `sfGlitchSliceChance`, `sfGlitchSliceReach`, `sfGlitchDropout`, `sfGlitchFlicker`.
 

@@ -50,7 +50,7 @@ afterEvaluate {
                 from(components["release"])
                 groupId = "com.github.boy-offi9-inc"
                 artifactId = "scifikit"
-                version = "0.3.1"
+                version = "0.3.2"
             }
         }
     }

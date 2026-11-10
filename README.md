@@ -85,7 +85,7 @@ HudFrame(modifier = Modifier.fillMaxWidth()) {
 
 | XML attribute | Compose parameter | Default |
 |---|---|---|
-| `sfAccentColor` | `accentColor` | `#00E5FF` |
+| `sfAccentColor` | `accentColor` | theme accent (`#00E5FF`) |
 | `sfFillColor` | `fillColor` | accent at 8% alpha |
 | `sfChamfer` | `chamfer` | 14dp |
 | `sfStrokeWidth` | `strokeWidth` | 1.5dp |
@@ -102,9 +102,9 @@ The text decodes on attach, glitches in bursts, and reacts to touch. Three indep
 |---|---|---|
 | `android:text` | `text` | none |
 | `android:textSize` | `fontSize` | 28sp |
-| `android:textColor` | `color` | `#E8FDFF` |
-| `sfSplitColorA` | `splitColorA` | `#FF2D6F` |
-| `sfSplitColorB` | `splitColorB` | `#00E5FF` |
+| `android:textColor` | `color` | theme text (`#E8FDFF`) |
+| `sfSplitColorA` | `splitColorA` | theme secondary (`#FF2D6F`) |
+| `sfSplitColorB` | `splitColorB` | theme accent (`#00E5FF`) |
 | `sfDecodeMode` | `decode` | `classic` |
 | `sfGlitchMode` | `glitch` | `standard` |
 | `sfTouchMode` | `touch` | `burst` |
@@ -194,7 +194,7 @@ Angles start at 3 o'clock and increase clockwise. Distance is 0 at the centre an
 
 | XML attribute | Compose parameter | Default |
 |---|---|---|
-| `sfAccentColor` | `accentColor` | `#00E5FF` |
+| `sfAccentColor` | `accentColor` | theme accent (`#00E5FF`) |
 | `sfStrokeWidth` | `strokeWidth` | 1.5dp |
 | `sfSweep` | `sweep` | `true` |
 | `sfRings` | `rings` | 4 |
@@ -209,7 +209,7 @@ Angles start at 3 o'clock and increase clockwise. Distance is 0 at the centre an
 |---|---|
 | `classic` | Clean glowing rings and a round-dot sweep. The original. |
 | `tactical` | Diamond contacts, dashed rings, compass letters, a faint grid and a narrow sweep. |
-| `cyberpunk` | Square contacts alternating with a second colour, a doubled sweep line and flicker. |
+| `cyberpunk` | Square contacts alternating with the theme's secondary colour, a doubled sweep line and flicker. |
 | `phosphor` | CRT look: long trail, lingering blips, scanlines. |
 | `hologram` | Cross contacts, a scan band moving over the disc and a hologram flicker. |
 
@@ -236,6 +236,54 @@ HoloRadar(
 `RadarConfig` fields: `blipShape` (`Dot`, `Diamond`, `Square`, `Cross`), `blipFade`, `trailDeg`, `trailAlpha`, `ringsDashed`, `ticks`, `cardinals`, `grid`, `scanlines`, `scanBand`, `glow`, `fill`, `flicker`, `split`, `secondaryColor`. XML overrides: `sfRadarTrailDeg`, `sfRadarGlow`, `sfRadarFlicker`, `sfRadarScanlines`, `sfRadarSecondaryColor`.
 
 In Views, set the `blips` property to a `List<RadarBlip>` and the `radar` property to change the look. `RadarBlip` and the config types live in `com.boyoffi9.scifikit.core`.
+
+## Theming
+
+One palette drives every component. Set it once and every SciFiKit view picks it up; a value set on a single view still wins.
+
+| Field | Used for | Default |
+|---|---|---|
+| accent | Frame and radar colour, glitch text colour split B | `#00E5FF` |
+| secondary | Glitch text colour split A, the second colour in the cyberpunk radar | `#FF2D6F` |
+| text | Glitch text colour | `#E8FDFF` |
+| dim | Secondary text in your own screens | `#7FB8C4` |
+| background | Screen background in your own screens | `#05080C` |
+| glow | Glow strength of frames and radars. 1 is the default look, 0 removes the glow. | `1` |
+
+With no theme set, everything looks exactly as it did before.
+
+### Views
+
+Set the attributes in your app theme. They are ordinary theme attributes, so `values-night` and theme overlays work.
+
+```xml
+<style name="Theme.MyApp" parent="Theme.Material3.DayNight.NoActionBar">
+    <item name="sfThemeAccent">#FFC400</item>
+    <item name="sfThemeSecondary">#FF2D6F</item>
+    <item name="sfThemeText">#FFF4D6</item>
+    <item name="sfThemeDim">#C9A24A</item>
+    <item name="sfThemeBackground">#0A0700</item>
+    <item name="sfThemeGlow">1.2</item>
+</style>
+```
+
+Reference them from your own layouts with `?attr/sfThemeAccent`, `?attr/sfThemeBackground` and so on, and read the whole palette in code with `context.sciFiPalette()`. Views read the theme when they are created, so after changing a theme at runtime, recreate the activity.
+
+### Compose
+
+```kotlin
+SciFiTheme(
+    palette = SciFiPalette(
+        accent = 0xFFFFC400.toInt(),
+        secondary = 0xFFFF2D6F.toInt(),
+        glow = 1.2f,
+    ),
+) {
+    HudFrame { GlitchText(text = "AMBER") }
+}
+```
+
+Read values anywhere inside with `SciFiTheme.palette`. Components resolve their default colours at composition, so changing the palette restyles everything below `SciFiTheme` immediately.
 
 ## Accessibility and motion
 

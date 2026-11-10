@@ -86,4 +86,13 @@
         <attr name="sfRadarSecondaryColor" format="color" />
     </declare-styleable>
 
+
+    <declare-styleable name="SciFiTheme">
+        <attr name="sfThemeAccent" format="color" />
+        <attr name="sfThemeSecondary" format="color" />
+        <attr name="sfThemeText" format="color" />
+        <attr name="sfThemeDim" format="color" />
+        <attr name="sfThemeBackground" format="color" />
+        <attr name="sfThemeGlow" format="float" />
+    </declare-styleable>
 </resources>

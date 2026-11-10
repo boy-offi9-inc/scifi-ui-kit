@@ -32,7 +32,7 @@ private val DefaultBlips = HoloRadarPainter.defaultBlips(7)
 fun HoloRadar(
     modifier: Modifier = Modifier,
     size: Dp = 220.dp,
-    accentColor: Color = Color(0xFF00E5FF),
+    accentColor: Color = Color(LocalSciFiPalette.current.accent),
     strokeWidth: Dp = 1.5.dp,
     rings: Int = 4,
     sweep: Boolean = true,
@@ -41,6 +41,7 @@ fun HoloRadar(
     blips: List<RadarBlip> = DefaultBlips,
 ) {
     val painter = remember { HoloRadarPainter() }
+    val palette = LocalSciFiPalette.current
     val animate = rememberAnimationsEnabled()
     var time by remember { mutableLongStateOf(0L) }
 
@@ -57,6 +58,8 @@ fun HoloRadar(
             .size(size)
             .drawBehind {
                 painter.accentColor = accentColor.toArgb()
+                painter.glow = palette.glow
+                painter.paletteSecondary = palette.secondary
                 painter.strokePx = strokeWidth.toPx()
                 painter.rings = rings.coerceAtLeast(1)
                 painter.sweep = sweep

@@ -25,7 +25,7 @@ import com.boyoffi9.scifikit.core.HudFramePainter
 @Composable
 fun HudFrame(
     modifier: Modifier = Modifier,
-    accentColor: Color = Color(0xFF00E5FF),
+    accentColor: Color = Color(LocalSciFiPalette.current.accent),
     fillColor: Color = accentColor.copy(alpha = 0.08f),
     chamfer: Dp = 14.dp,
     strokeWidth: Dp = 1.5.dp,
@@ -36,6 +36,7 @@ fun HudFrame(
     content: @Composable BoxScope.() -> Unit,
 ) {
     val painter = remember { HudFramePainter() }
+    val glow = LocalSciFiPalette.current.glow
     val animate = rememberAnimationsEnabled()
     var time by remember { mutableLongStateOf(0L) }
 
@@ -51,6 +52,7 @@ fun HudFrame(
         modifier = modifier
             .drawBehind {
                 painter.accentColor = accentColor.toArgb()
+                painter.glow = glow
                 painter.fillColor = fillColor.toArgb()
                 painter.chamferPx = chamfer.toPx()
                 painter.strokePx = strokeWidth.toPx()

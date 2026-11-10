@@ -20,6 +20,7 @@ data class RadarConfig(
     val flicker: Float = 0f,
     val split: Float = 0f,
     val secondaryColor: Int = 0,
+    val alternate: Boolean = false,
 )
 
 enum class RadarMode(val config: RadarConfig) {
@@ -48,7 +49,7 @@ enum class RadarMode(val config: RadarConfig) {
             fill = 0.08f,
             flicker = 0.18f,
             split = 2.5f,
-            secondaryColor = 0xFFFF2D6F.toInt(),
+            alternate = true,
         ),
     ),
     Phosphor(
@@ -87,4 +88,10 @@ internal fun blipAlpha(config: RadarConfig, sinceDeg: Float): Float {
 internal fun flickerFactor(config: RadarConfig, bucket: Int): Float {
     if (config.flicker <= 0f) return 1f
     return 1f - config.flicker.coerceAtMost(1f) * (hashOf(bucket, 3) % 100 / 100f)
+}
+
+internal fun radarSecondary(config: RadarConfig, accent: Int, paletteSecondary: Int): Int = when {
+    config.secondaryColor != 0 -> config.secondaryColor
+    config.alternate -> paletteSecondary
+    else -> accent
 }

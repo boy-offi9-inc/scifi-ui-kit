@@ -37,6 +37,8 @@ class HoloRadarPainter {
     var sweep: Boolean = true
     var rotationPeriodMs: Long = 4000L
     var radar: RadarConfig = RadarMode.Classic.config
+    var glow: Float = 1f
+    var paletteSecondary: Int = 0xFFFF2D6F.toInt()
     var blips: List<RadarBlip> = defaultBlips(7)
 
     var trailDeg: Float
@@ -91,7 +93,7 @@ class HoloRadarPainter {
             PARKED_ANGLE
         }
         val m = if (animate) flickerFactor(cfg, (nowMs / FLICKER_STEP_MS).toInt()) else 1f
-        val secondary = if (cfg.secondaryColor != 0) cfg.secondaryColor else accentColor
+        val secondary = radarSecondary(cfg, accentColor, paletteSecondary)
 
         ensureGeometry(cx, cy, radius, cfg)
 
@@ -177,7 +179,7 @@ class HoloRadarPainter {
             canvas.restore()
         }
 
-        val glow = cfg.glow
+        val glow = cfg.glow * this.glow
         if (glow > 0f) {
             linePaint.strokeWidth = strokePx * 3.5f
             linePaint.color = withAlpha(accentColor, 0.08f * glow * m)

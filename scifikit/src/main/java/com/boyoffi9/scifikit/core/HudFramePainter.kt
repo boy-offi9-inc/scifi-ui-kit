@@ -19,6 +19,7 @@ class HudFramePainter {
 
     var accentColor: Int = 0xFF00E5FF.toInt()
     var fillColor: Int = 0x1400E5FF
+    var glow: Float = 1f
     var chamferPx: Float = 28f
     var strokePx: Float = 3f
     var bracketPx: Float = 44f
@@ -78,10 +79,10 @@ class HudFramePainter {
         }
 
         strokePaint.strokeWidth = strokePx * 4f
-        strokePaint.color = withAlpha(accentColor, 0.08f)
+        strokePaint.color = withAlpha(accentColor, 0.08f * glow)
         canvas.drawPath(framePath, strokePaint)
         strokePaint.strokeWidth = strokePx * 2.2f
-        strokePaint.color = withAlpha(accentColor, 0.18f)
+        strokePaint.color = withAlpha(accentColor, 0.18f * glow)
         canvas.drawPath(framePath, strokePaint)
         strokePaint.strokeWidth = strokePx
         strokePaint.color = withAlpha(accentColor, 0.9f)

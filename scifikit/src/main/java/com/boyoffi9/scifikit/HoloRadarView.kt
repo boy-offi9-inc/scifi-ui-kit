@@ -81,6 +81,11 @@ class HoloRadarView @JvmOverloads constructor(
         defaultSizePx = (220f * density).toInt()
         painter.strokePx = 1.5f * density
 
+        val palette = context.sciFiPalette()
+        painter.accentColor = palette.accent
+        painter.glow = palette.glow
+        painter.paletteSecondary = palette.secondary
+
         context.withStyledAttributes(attrs, R.styleable.HoloRadarView, defStyleAttr, 0) {
             painter.accentColor = getColor(R.styleable.HoloRadarView_sfAccentColor, painter.accentColor)
             painter.strokePx = getDimension(R.styleable.HoloRadarView_sfStrokeWidth, painter.strokePx)

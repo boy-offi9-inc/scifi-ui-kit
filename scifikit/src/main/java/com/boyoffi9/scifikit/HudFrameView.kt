@@ -79,6 +79,10 @@ class HudFrameView @JvmOverloads constructor(
         painter.bracketPx = 20f * density
         painter.scanlineGapPx = 3f * density
 
+        val palette = context.sciFiPalette()
+        painter.accentColor = palette.accent
+        painter.glow = palette.glow
+
         context.withStyledAttributes(attrs, R.styleable.HudFrameView, defStyleAttr, 0) {
             val accent = getColor(R.styleable.HudFrameView_sfAccentColor, painter.accentColor)
             painter.accentColor = accent

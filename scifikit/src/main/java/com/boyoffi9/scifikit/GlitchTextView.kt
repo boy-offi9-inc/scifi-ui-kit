@@ -126,6 +126,11 @@ class GlitchTextView @JvmOverloads constructor(
         painter.textSizePx = TypedValue.applyDimension(
             TypedValue.COMPLEX_UNIT_SP, 28f, context.resources.displayMetrics,
         )
+        val palette = context.sciFiPalette()
+        painter.color = palette.text
+        painter.splitColorA = palette.secondary
+        painter.splitColorB = palette.accent
+
         context.withStyledAttributes(attrs, R.styleable.GlitchTextView, defStyleAttr, 0) {
             getText(R.styleable.GlitchTextView_android_text)?.let { painter.text = it.toString() }
             painter.textSizePx = getDimension(R.styleable.GlitchTextView_android_textSize, painter.textSizePx)

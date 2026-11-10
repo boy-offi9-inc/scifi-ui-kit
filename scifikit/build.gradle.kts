@@ -38,6 +38,7 @@ android {
 dependencies {
     implementation("androidx.core:core-ktx:1.13.1")
 
+
     compileOnly(platform("androidx.compose:compose-bom:2024.06.00"))
     compileOnly("androidx.compose.ui:ui")
     compileOnly("androidx.compose.foundation:foundation")
@@ -50,7 +51,7 @@ afterEvaluate {
                 from(components["release"])
                 groupId = "com.github.boy-offi9-inc"
                 artifactId = "scifikit"
-                version = "0.3.2"
+                version = "0.4.0"
             }
         }
     }

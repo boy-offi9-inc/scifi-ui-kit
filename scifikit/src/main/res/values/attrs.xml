@@ -87,6 +87,27 @@
     </declare-styleable>
 
 
+    <declare-styleable name="NeonButtonView">
+        <attr name="android:text" />
+        <attr name="android:textSize" />
+        <attr name="android:textColor" />
+        <attr name="sfAccentColor" />
+        <attr name="sfStrokeWidth" />
+        <attr name="sfOnAccentColor" format="color" />
+        <attr name="sfNeonStyle">
+            <enum name="outline" value="0" />
+            <enum name="solid" value="1" />
+            <enum name="ghost" value="2" />
+        </attr>
+        <attr name="sfNeonFill" format="float" />
+        <attr name="sfNeonGlow" format="float" />
+        <attr name="sfNeonPulse" format="float" />
+        <attr name="sfNeonSurge" format="float" />
+        <attr name="sfNeonFlicker" format="float" />
+        <attr name="sfNeonSurgeMs" format="integer" />
+        <attr name="sfNeonCorner" format="float" />
+    </declare-styleable>
+
     <declare-styleable name="SciFiTheme">
         <attr name="sfThemeAccent" format="color" />
         <attr name="sfThemeSecondary" format="color" />

@@ -14,6 +14,7 @@ No GIFs, no Lottie, no image assets. Works in XML Views and Jetpack Compose.
 | HUD frame | `HudFrameView` | `HudFrame` | Chamfered panel with neon glow, scanlines, corner brackets and a light segment that travels around the border. Holds your content. |
 | Glitch text | `GlitchTextView` | `GlitchText` | Text that decodes from random characters, then glitches in bursts (RGB split and sliced displacement) and when touched. Six decode modes, four glitch modes and four touch modes. |
 | Holo radar | `HoloRadarView` | `HoloRadar` | Radar with range rings, degree ticks, a rotating sweep with a fading trail, and blips that ping when the sweep reaches them. Five looks, from clean to CRT. |
+| Neon button | `NeonButtonView` | `NeonButton` | Button in three styles (outline, solid, ghost). Pressing it surges the glow and flickers the edge. |
 
 Both versions of each component call the same painter class, so they render identically.
 
@@ -237,6 +238,40 @@ HoloRadar(
 
 In Views, set the `blips` property to a `List<RadarBlip>` and the `radar` property to change the look. `RadarBlip` and the config types live in `com.boyoffi9.scifikit.core`.
 
+## Neon button
+
+A button drawn on Canvas with a neon edge. Three styles, one press effect.
+
+| Style | Look |
+|---|---|
+| `Outline` | Glowing border over a faint fill. The default. |
+| `Solid` | Filled with the accent colour, text in the on-accent colour. |
+| `Ghost` | No border or fill, only the text and an underline. |
+
+Pressing a button surges the glow to full strength and flickers it back down. While held, the glow stays lifted.
+
+```xml
+<com.boyoffi9.scifikit.NeonButtonView
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="ENGAGE"
+    app:sfNeonStyle="solid" />
+```
+
+```kotlin
+NeonButton(
+    text = "ENGAGE",
+    onClick = { },
+    style = NeonStyle.Solid.config,
+)
+```
+
+Fine-tune a style with `copy`: `NeonStyle.Outline.config.copy(surge = 1.5f, flicker = 0f)`.
+
+`NeonConfig` fields: `fill`, `border`, `underline`, `inverseText`, `corner`, `glow`, `pulse` (idle breathing, 0 is off), `surge`, `flicker`, `surgeMs`. XML overrides: `sfNeonFill`, `sfNeonGlow`, `sfNeonPulse`, `sfNeonSurge`, `sfNeonFlicker`, `sfNeonSurgeMs`, `sfNeonCorner`, plus `sfAccentColor`, `sfOnAccentColor` and `sfStrokeWidth`.
+
+Colours default to the theme palette. A disabled button is dimmed and ignores presses, and keyboard focus draws a ring. The button reports itself as a button to screen readers, and with animations turned off the press effect is skipped.
+
 ## Theming
 
 One palette drives every component. Set it once and every SciFiKit view picks it up; a value set on a single view still wins.
@@ -294,7 +329,7 @@ Read values anywhere inside with `SciFiTheme.palette`. Components resolve their 
 
 ## Architecture
 
-Each component is a painter class in `com.boyoffi9.scifikit.core` (`HudFramePainter`, `GlitchTextPainter`, `HoloRadarPainter`) plus two thin wrappers: a View and a composable. The painters take a `Canvas` and the current time, hold no timers, and are written to avoid per-frame allocation. They are public, so you can draw them into your own Canvas.
+Each component is a painter class in `com.boyoffi9.scifikit.core` (`HudFramePainter`, `GlitchTextPainter`, `HoloRadarPainter`, `NeonButtonPainter`) plus two thin wrappers: a View and a composable. The painters take a `Canvas` and the current time, hold no timers, and are written to avoid per-frame allocation. They are public, so you can draw them into your own Canvas.
 
 Glow is faked with wide, low-alpha strokes, so there is no blur, no bitmap and no software layer.
 
@@ -314,4 +349,4 @@ Issues and pull requests are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md) fi
 
 ---
 
-Built by [Boy Offi9](https://github.com/Boy-Offi9).
+Built by [GHOST 099](https://github.com/Boy-Offi9).

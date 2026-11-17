@@ -61,6 +61,13 @@ class HoloRadarPainter {
     private val disc = Path()
 
     private var shader: SweepGradient? = null
+
+    // Sweep angle is accumulated from frame deltas instead of derived from
+    // nowMs % period, so changing rotationPeriodMs at runtime keeps the
+    // scanline continuous instead of jumping to a new phase.
+    private var lastAngleMs = -1L
+    private var angleAccumDeg = 0f
+
     private var shaderCx = 0f
     private var shaderCy = 0f
     private var shaderAccent = 0
@@ -87,10 +94,17 @@ class HoloRadarPainter {
         if (radius <= strokePx * 4f) return
 
         val cfg = radar
-        val angle = if (animate && sweep && rotationPeriodMs > 0L) {
-            (nowMs % rotationPeriodMs) / rotationPeriodMs.toFloat() * 360f
+        val angle: Float
+        if (animate && sweep && rotationPeriodMs > 0L) {
+            if (lastAngleMs >= 0L) {
+                val dt = (nowMs - lastAngleMs).coerceIn(0L, rotationPeriodMs)
+                angleAccumDeg = (angleAccumDeg + dt * 360f / rotationPeriodMs) % 360f
+            }
+            lastAngleMs = nowMs
+            angle = angleAccumDeg
         } else {
-            PARKED_ANGLE
+            lastAngleMs = -1L
+            angle = PARKED_ANGLE
         }
         val m = if (animate) flickerFactor(cfg, (nowMs / FLICKER_STEP_MS).toInt()) else 1f
         val secondary = radarSecondary(cfg, accentColor, paletteSecondary)

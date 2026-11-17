@@ -75,7 +75,11 @@ fun GlitchText(
     if (glitchIntervalMs != null) glitchConfig = glitchConfig.copy(intervalMs = glitchIntervalMs)
     painter.glitch = glitchConfig
     painter.touch = touch
-    val config = if (decodeDurationMs != null) decode.copy(durationMs = decodeDurationMs) else decode
+    // Remembered so an unchanged config doesn't restart the decode on every
+    // recomposition (a fresh .copy() would relaunch the LaunchedEffect below).
+    val config = remember(decode, decodeDurationMs) {
+        if (decodeDurationMs != null) decode.copy(durationMs = decodeDurationMs) else decode
+    }
     painter.decode = config
     painter.animate = animate
 

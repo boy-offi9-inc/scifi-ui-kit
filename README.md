@@ -14,6 +14,7 @@ No GIFs, no Lottie, no image assets. Works in XML Views and Jetpack Compose.
 | HUD frame | `HudFrameView` | `HudFrame` | Chamfered panel with neon glow, scanlines, corner brackets and a light segment that travels around the border. Holds your content. |
 | Glitch text | `GlitchTextView` | `GlitchText` | Text that decodes from random characters, then glitches in bursts (RGB split and sliced displacement) and when touched. Six decode modes, four glitch modes and four touch modes. |
 | Holo radar | `HoloRadarView` | `HoloRadar` | Radar with range rings, degree ticks, a rotating sweep with a fading trail, and blips that ping when the sweep reaches them. Five looks, from clean to CRT. |
+| Sci-fi card | `SciFiCardView` | `SciFiCard` | Content card with a cut-corner frame, layered border, accent bands, hazard stripes, target ring and optional grid. Three styles. |
 | Neon button | `NeonButtonView` | `NeonButton` | Button in three styles (outline, solid, ghost). Pressing it surges the glow and flickers the edge. |
 
 Both versions of each component call the same painter class, so they render identically.
@@ -36,7 +37,7 @@ Add the dependency to your app module:
 
 ```kotlin
 dependencies {
-    implementation("com.github.boy-offi9-inc:scifi-ui-kit:v0.3.0")
+    implementation("com.github.boy-offi9-inc:scifi-ui-kit:v0.5.0")
 }
 ```
 
@@ -44,7 +45,7 @@ Groovy DSL:
 
 ```groovy
 maven { url 'https://jitpack.io' }
-implementation 'com.github.boy-offi9-inc:scifi-ui-kit:v0.3.0'
+implementation 'com.github.boy-offi9-inc:scifi-ui-kit:v0.5.0'
 ```
 
 The version is the Git tag of the release. The badge above shows the latest one.
@@ -238,6 +239,40 @@ HoloRadar(
 
 In Views, set the `blips` property to a `List<RadarBlip>` and the `radar` property to change the look. `RadarBlip` and the config types live in `com.boyoffi9.scifikit.core`.
 
+## Sci-fi card
+
+A container for your own content, framed like a HUD panel. Cut corners, a layered border, thick accent bands, hazard stripes and small detail marks are drawn on Canvas behind the content. Nothing inside is drawn for you, so put any views or composables in it.
+
+| Style | Look |
+|---|---|
+| `Panel` | Cuts on all four corners, double border, thick accent bands, side ticks and hazard stripes. |
+| `Outline` | Thin frame with corner brackets, a target ring, arrows, dotted rows, a hazard footer and a faint grid. |
+| `Plain` | Cut corners and a thin border only. |
+
+```xml
+<com.boyoffi9.scifikit.SciFiCardView
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:sfCardStyle="panel"
+    app:sfAccentColor="#FFC400">
+
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="NEW UPDATE" />
+</com.boyoffi9.scifikit.SciFiCardView>
+```
+
+```kotlin
+SciFiCard(
+    accentColor = Color(0xFFFFC400),
+    style = CardStyle.Outline.config.copy(grid = 0.2f),
+) {
+    Text("NEW UPDATE")
+}
+```
+
+`CardConfig` fields: `cutTL`, `cutTR`, `cutBR`, `cutBL` (multiples of the cut size, 0 for a square corner), `fill`, `line`, `layers`, `bars`, `brackets`, `ticks`, `hazardTop`, `hazardBottom`, `footer`, `target`, `arrows`, `dots`, `grid`, `glow`, `march` (speed of the moving hazard stripes, 0 is still). XML overrides: `sfCardCut`, `sfCardFill`, `sfCardGrid`, `sfCardGlow`, `sfCardMarch`, plus `sfAccentColor` and `sfStrokeWidth`.
+
+The card picks up the theme palette like every other component. Without padding of your own, the view adds 20dp. The card is decorative: it has no semantics, so screen readers read only what is inside. With animations turned off, the hazard stripes stay still.
+
 ## Neon button
 
 A button drawn on Canvas with a neon edge. Three styles, one press effect.
@@ -329,7 +364,7 @@ Read values anywhere inside with `SciFiTheme.palette`. Components resolve their 
 
 ## Architecture
 
-Each component is a painter class in `com.boyoffi9.scifikit.core` (`HudFramePainter`, `GlitchTextPainter`, `HoloRadarPainter`, `NeonButtonPainter`) plus two thin wrappers: a View and a composable. The painters take a `Canvas` and the current time, hold no timers, and are written to avoid per-frame allocation. They are public, so you can draw them into your own Canvas.
+Each component is a painter class in `com.boyoffi9.scifikit.core` (`HudFramePainter`, `GlitchTextPainter`, `HoloRadarPainter`, `NeonButtonPainter`, `SciFiCardPainter`) plus two thin wrappers: a View and a composable. The painters take a `Canvas` and the current time, hold no timers, and are written to avoid per-frame allocation. They are public, so you can draw them into your own Canvas.
 
 Glow is faked with wide, low-alpha strokes, so there is no blur, no bitmap and no software layer.
 
@@ -349,4 +384,4 @@ Issues and pull requests are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md) fi
 
 ---
 
-Built by [GHOST 099](https://github.com/Boy-Offi9).
+Built by [Boy Offi9](https://github.com/Boy-Offi9).

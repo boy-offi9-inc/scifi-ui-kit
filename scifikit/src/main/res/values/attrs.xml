@@ -123,6 +123,30 @@
         <attr name="sfNeonCorner" format="float" />
     </declare-styleable>
 
+    <declare-styleable name="NeonProgressView">
+        <attr name="sfLabel" format="string" />
+        <attr name="sfProgress" format="float" />
+        <attr name="sfWarningAt" format="float" />
+        <attr name="sfTicks" format="integer" />
+        <attr name="sfShowPercent" format="boolean" />
+        <attr name="sfAccentColor" />
+        <attr name="sfWarningColor" format="color" />
+    </declare-styleable>
+
+    <declare-styleable name="NeonBadgeView">
+        <attr name="sfText" format="string" />
+        <attr name="sfState">
+            <enum name="normal" value="0" />
+            <enum name="success" value="1" />
+            <enum name="warning" value="2" />
+            <enum name="danger" value="3" />
+            <enum name="muted" value="4" />
+        </attr>
+        <attr name="sfFilled" format="boolean" />
+        <attr name="sfDot" format="boolean" />
+        <attr name="sfAccentColor" />
+    </declare-styleable>
+
     <declare-styleable name="SciFiTheme">
         <attr name="sfThemeAccent" format="color" />
         <attr name="sfThemeSecondary" format="color" />

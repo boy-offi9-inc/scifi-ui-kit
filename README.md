@@ -16,6 +16,8 @@ No GIFs, no Lottie, no image assets. Works in XML Views and Jetpack Compose.
 | Holo radar | `HoloRadarView` | `HoloRadar` | Radar with range rings, degree ticks, a rotating sweep with a fading trail, and blips that ping when the sweep reaches them. Five looks, from clean to CRT. |
 | Sci-fi card | `SciFiCardView` | `SciFiCard` | Content card with a cut-corner frame, layered border, accent bands, hazard stripes, target ring and optional grid. Three styles. |
 | Neon button | `NeonButtonView` | `NeonButton` | Button in three styles (outline, solid, ghost). Pressing it surges the glow and flickers the edge. |
+| Neon progress | `NeonProgressView` | `NeonProgress` | Labeled status bar with bracketed track, ticks and a glowing fill that turns to the warning colour past a threshold. |
+| Neon badge | `NeonBadgeView` | `NeonBadge` | Hex-framed tag chip in five states (normal, success, warning, danger, muted), with an optional pulsing status dot. |
 
 Both versions of each component call the same painter class, so they render identically.
 
@@ -306,6 +308,50 @@ Fine-tune a style with `copy`: `NeonStyle.Outline.config.copy(surge = 1.5f, flic
 `NeonConfig` fields: `fill`, `border`, `underline`, `inverseText`, `corner`, `glow`, `pulse` (idle breathing, 0 is off), `surge`, `flicker`, `surgeMs`. XML overrides: `sfNeonFill`, `sfNeonGlow`, `sfNeonPulse`, `sfNeonSurge`, `sfNeonFlicker`, `sfNeonSurgeMs`, `sfNeonCorner`, plus `sfAccentColor`, `sfOnAccentColor` and `sfStrokeWidth`.
 
 Colours default to the theme palette. A disabled button is dimmed and ignores presses, and keyboard focus draws a ring. The button reports itself as a button to screen readers, and with animations turned off the press effect is skipped.
+
+## Neon progress
+
+A labeled status bar in the HUD style: bracketed track, glowing fill with tick marks, a monospace label on the left and a zero-padded percentage on the right. Above the warning threshold the bar turns to the warning colour (default 85%).
+
+```xml
+<com.boyoffi9.scifikit.NeonProgressView
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:sfLabel="SYS. CORE LOAD"
+    app:sfProgress="0.842" />
+```
+
+```kotlin
+NeonProgress(
+    label = "SYS. CORE LOAD",
+    progress = 0.842f,
+)
+```
+
+The fill animates to new values. XML attributes: `sfLabel`, `sfProgress` (0–1), `sfWarningAt` (default 0.85), `sfTicks` (default 8, 0 hides them), `sfShowPercent` (default true), `sfAccentColor`, `sfWarningColor`. Compose adds `barHeight`, `warningAt` and per-colour overrides. The view reports the label and current percent to screen readers.
+
+## Neon badge
+
+A small hex-framed chip for tags and states — "BETA", "NEW", "ONLINE", "PREMIUM". Five states: `Normal`, `Success`, `Warning`, `Danger`, `Muted`. With a dot enabled the badge pulses gently (Success/Normal only when animating). `filled = true` tints the frame's interior.
+
+```xml
+<com.boyoffi9.scifikit.NeonBadgeView
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    app:sfText="ONLINE"
+    app:sfState="success"
+    app:sfDot="true" />
+```
+
+```kotlin
+NeonBadge(
+    text = "ONLINE",
+    state = NeonBadgeState.Success,
+    showDot = true,
+)
+```
+
+XML attributes: `sfText`, `sfState` (`normal`/`success`/`warning`/`danger`/`muted`), `sfFilled`, `sfDot`, `sfAccentColor`. In Compose the `state` parameter takes `NeonBadgePainter.State`, and `successColor` is overridable per badge. Muted badges dim both frame and label and never animate.
 
 ## Theming
 

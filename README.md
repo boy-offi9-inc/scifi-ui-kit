@@ -18,6 +18,7 @@ No GIFs, no Lottie, no image assets. Works in XML Views and Jetpack Compose.
 | Neon button | `NeonButtonView` | `NeonButton` | Button in three styles (outline, solid, ghost). Pressing it surges the glow and flickers the edge. |
 | Neon progress | `NeonProgressView` | `NeonProgress` | Labeled status bar with bracketed track, ticks and a glowing fill that turns to the warning colour past a threshold. |
 | Neon badge | `NeonBadgeView` | `NeonBadge` | Hex-framed tag chip in five states (normal, success, warning, danger, muted), with an optional pulsing status dot. |
+| Neon gauge | `NeonGaugeView` | `NeonGauge` | Radial gauge — donut percent, speedometer dial or any arc span. Big mono readout in the middle, unit label under it, optional major ticks, warning colour past a threshold. |
 
 Both versions of each component call the same painter class, so they render identically.
 
@@ -352,6 +353,46 @@ NeonBadge(
 ```
 
 XML attributes: `sfText`, `sfState` (`normal`/`success`/`warning`/`danger`/`muted`), `sfFilled`, `sfDot`, `sfAccentColor`. In Compose the `state` parameter takes `NeonBadgePainter.State`, and `successColor` is overridable per badge. Muted badges dim both frame and label and never animate.
+
+## Neon gauge
+
+A radial gauge on one arc engine: a full donut (`sweepDegrees = 360`), a 300° speedometer dial with major ticks, or any arc in between. Three readouts — `Percent` (zero-padded `072`), `Value` (the raw value over `maxValue`) and `None`. The unit label renders small under the big mono number. Past the warning threshold (default 85%) the fill turns to the warning colour, so a redlining speedometer goes red on its own.
+
+```xml
+<com.boyoffi9.scifikit.NeonGaugeView
+    android:layout_width="120dp"
+    android:layout_height="120dp"
+    app:sfGaugeValue="0.72"
+    app:sfReadout="percent" />
+
+<com.boyoffi9.scifikit.NeonGaugeView
+    android:layout_width="160dp"
+    android:layout_height="120dp"
+    app:sfGaugeValue="0.72"
+    app:sfGaugeValue2="130"
+    app:sfUnit="KM/H"
+    app:sfReadout="value"
+    app:sfGaugeSweep="300"
+    app:sfGaugeTicks="10" />
+```
+
+```kotlin
+NeonGauge(
+    progress = 0.72f,
+    readout = Readout.Percent,
+)
+
+NeonGauge(
+    progress = 130f / 180f,
+    value = 130f,
+    unit = "KM/H",
+    readout = Readout.Value,
+    sweepDegrees = 300f,
+    ticks = 10,
+)
+```
+
+The arc animates to new values (Compose tweens; the view eases on its own). XML attributes: `sfGaugeValue` (0–1 progress), `sfGaugeValue2` (raw value), `sfUnit`, `sfReadout` (`percent`/`value`/`none`), `sfGaugeSweep` (30–360), `sfGaugeTicks`, `sfGaugeWarningAt`, `sfAccentColor`. Compose adds per-colour overrides and `strokeWidth`. The gauge reports its current percent (or value) to screen readers.
 
 ## Theming
 

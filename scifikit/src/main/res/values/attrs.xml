@@ -147,6 +147,21 @@
         <attr name="sfAccentColor" />
     </declare-styleable>
 
+    <declare-styleable name="NeonGaugeView">
+        <attr name="sfGaugeValue" format="float" />
+        <attr name="sfGaugeValue2" format="float" />
+        <attr name="sfUnit" format="string" />
+        <attr name="sfReadout">
+            <enum name="percent" value="0" />
+            <enum name="value" value="1" />
+            <enum name="none" value="2" />
+        </attr>
+        <attr name="sfGaugeSweep" format="float" />
+        <attr name="sfGaugeTicks" format="integer" />
+        <attr name="sfGaugeWarningAt" format="float" />
+        <attr name="sfAccentColor" />
+    </declare-styleable>
+
     <declare-styleable name="SciFiTheme">
         <attr name="sfThemeAccent" format="color" />
         <attr name="sfThemeSecondary" format="color" />

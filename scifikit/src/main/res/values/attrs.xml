@@ -162,6 +162,21 @@
         <attr name="sfAccentColor" />
     </declare-styleable>
 
+    <declare-styleable name="NeonAlertView">
+        <attr name="sfAlertText" format="string" />
+        <attr name="sfSeverity">
+            <enum name="info" value="0" />
+            <enum name="success" value="1" />
+            <enum name="warning" value="2" />
+            <enum name="danger" value="3" />
+        </attr>
+        <attr name="sfAlertFilled" format="boolean" />
+        <attr name="sfAlertIcon" format="boolean" />
+        <attr name="sfAlertChevrons" format="boolean" />
+        <attr name="sfAlertHazard" format="float" />
+        <attr name="sfAccentColor" />
+    </declare-styleable>
+
     <declare-styleable name="SciFiTheme">
         <attr name="sfThemeAccent" format="color" />
         <attr name="sfThemeSecondary" format="color" />

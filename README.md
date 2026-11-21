@@ -19,6 +19,7 @@ No GIFs, no Lottie, no image assets. Works in XML Views and Jetpack Compose.
 | Neon progress | `NeonProgressView` | `NeonProgress` | Labeled status bar with bracketed track, ticks and a glowing fill that turns to the warning colour past a threshold. |
 | Neon badge | `NeonBadgeView` | `NeonBadge` | Hex-framed tag chip in five states (normal, success, warning, danger, muted), with an optional pulsing status dot. |
 | Neon gauge | `NeonGaugeView` | `NeonGauge` | Radial gauge — donut percent, speedometer dial or any arc span. Big mono readout in the middle, unit label under it, optional major ticks, warning colour past a threshold. |
+| Neon alert | `NeonAlertView` | `NeonAlert` | Alert banner in four severities (info, success, warning, danger) with a severity icon, optional marching hazard strip and trailing chevrons. |
 
 Both versions of each component call the same painter class, so they render identically.
 
@@ -393,6 +394,36 @@ NeonGauge(
 ```
 
 The arc animates to new values (Compose tweens; the view eases on its own). XML attributes: `sfGaugeValue` (0–1 progress), `sfGaugeValue2` (raw value), `sfUnit`, `sfReadout` (`percent`/`value`/`none`), `sfGaugeSweep` (30–360), `sfGaugeTicks`, `sfGaugeWarningAt`, `sfAccentColor`. Compose adds per-colour overrides and `strokeWidth`. The gauge reports its current percent (or value) to screen readers.
+
+## Neon alert
+
+An alert banner or status strip: "SCAN COMPLETE — NO HOSTILES DETECTED", "WARNING", "SIGNAL STABLE". Four severities, each with its own colour and icon shape — `Info` (diamond), `Success` (check), `Warning` (triangle), `Danger` (triangle). The left edge is notched, the frame is cut-corner, and a `hazard` value greater than zero adds a marching hazard strip along the top.
+
+```xml
+<com.boyoffi9.scifikit.NeonAlertView
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:sfAlertText="REACTOR OVERLOAD IMMINENT"
+    app:sfSeverity="danger"
+    app:sfAlertHazard="0.3"
+    app:sfAlertChevrons="true" />
+```
+
+```kotlin
+NeonAlert(
+    text = "SCAN COMPLETE — NO HOSTILES DETECTED",
+    severity = Severity.Success,
+    chevrons = true,
+)
+
+NeonAlert(
+    text = "REACTOR OVERLOAD IMMINENT",
+    severity = Severity.Danger,
+    hazard = 0.3f,
+)
+```
+
+The hazard strip marches while animating and freezes with animations off. XML attributes: `sfAlertText`, `sfSeverity` (`info`/`success`/`warning`/`danger`), `sfAlertFilled`, `sfAlertIcon`, `sfAlertChevrons`, `sfAlertHazard` (0–0.3 of the height, 0 is off), `sfAccentColor`. Compose overrides every severity colour individually. The view reads as "<severity> alert: <text>" to screen readers.
 
 ## Theming
 

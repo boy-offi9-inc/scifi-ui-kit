@@ -64,6 +64,21 @@
         <attr name="sfDecodeCursor" format="boolean" />
     </declare-styleable>
 
+    <declare-styleable name="SciFiCardView">
+        <attr name="sfAccentColor" />
+        <attr name="sfStrokeWidth" />
+        <attr name="sfCardStyle">
+            <enum name="panel" value="0" />
+            <enum name="outline" value="1" />
+            <enum name="plain" value="2" />
+        </attr>
+        <attr name="sfCardCut" format="dimension" />
+        <attr name="sfCardFill" format="float" />
+        <attr name="sfCardGrid" format="float" />
+        <attr name="sfCardGlow" format="float" />
+        <attr name="sfCardMarch" format="float" />
+    </declare-styleable>
+
     <declare-styleable name="HoloRadarView">
         <!-- Shared with HudFrameView, declared once there -->
         <attr name="sfAccentColor" />

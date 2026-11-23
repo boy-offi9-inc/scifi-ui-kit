@@ -38,6 +38,7 @@ fun NeonProgress(
     textColor: Color = Color(LocalSciFiPalette.current.text),
     warningAt: Float = 0.85f,
     ticks: Int = 8,
+    segmented: Boolean = false,
 ) {
     val density = LocalDensity.current
     val glow = LocalSciFiPalette.current.glow
@@ -62,6 +63,7 @@ fun NeonProgress(
     painter.showPercent = showPercent
     painter.ticks = ticks
     painter.warning = warningAt
+    painter.segmented = segmented
     painter.animate = false // painter-side easing off; Compose drives the tween
 
     val desc = if (showPercent) "$label ${(progress * 100).roundToInt()}%" else label

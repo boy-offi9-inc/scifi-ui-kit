@@ -71,6 +71,8 @@
             <enum name="panel" value="0" />
             <enum name="outline" value="1" />
             <enum name="plain" value="2" />
+            <enum name="targeted" value="3" />
+            <enum name="terminal" value="4" />
         </attr>
         <attr name="sfCardCut" format="dimension" />
         <attr name="sfCardFill" format="float" />
@@ -93,6 +95,7 @@
             <enum name="cyberpunk" value="2" />
             <enum name="phosphor" value="3" />
             <enum name="hologram" value="4" />
+            <enum name="sonar" value="5" />
         </attr>
         <attr name="sfRadarTrailDeg" format="float" />
         <attr name="sfRadarGlow" format="float" />
@@ -113,7 +116,12 @@
             <enum name="outline" value="0" />
             <enum name="solid" value="1" />
             <enum name="ghost" value="2" />
+            <enum name="charge" value="3" />
+            <enum name="angled" value="4" />
+            <enum name="slab" value="5" />
         </attr>
+        <attr name="sfNeonCut" format="boolean" />
+        <attr name="sfNeonNotch" format="float" />
         <attr name="sfNeonFill" format="float" />
         <attr name="sfNeonGlow" format="float" />
         <attr name="sfNeonPulse" format="float" />
@@ -131,6 +139,7 @@
         <attr name="sfShowPercent" format="boolean" />
         <attr name="sfAccentColor" />
         <attr name="sfWarningColor" format="color" />
+        <attr name="sfProgressSegmented" format="boolean" />
     </declare-styleable>
 
     <declare-styleable name="NeonBadgeView">
@@ -176,6 +185,7 @@
         <attr name="sfAlertIcon" format="boolean" />
         <attr name="sfAlertChevrons" format="boolean" />
         <attr name="sfAlertHazard" format="float" />
+        <attr name="sfAlertScanlines" format="boolean" />
         <attr name="sfAccentColor" />
     </declare-styleable>
 

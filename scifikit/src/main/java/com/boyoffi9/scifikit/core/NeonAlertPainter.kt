@@ -4,6 +4,8 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.Typeface
+import kotlin.math.cos
+import kotlin.math.max
 import kotlin.math.min
 
 /**
@@ -29,6 +31,8 @@ class NeonAlertPainter {
     var icon: Boolean = true          // leading triangle icon
     var chevrons: Boolean = false     // trailing >> marks
     var hazard: Float = 0f            // 0 off, >0 marching hazard strip along the top
+    var scanlines: Boolean = true     // faint CRT texture across the body
+    var dangerPulse: Boolean = true   // danger alerts breathe
     var animate: Boolean = true
 
     private val framePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.STROKE }
@@ -58,7 +62,7 @@ class NeonAlertPainter {
         return textPaint.measureText(text.uppercase())
     }
 
-    fun isAnimating(): Boolean = animate && hazard > 0f
+    fun isAnimating(): Boolean = animate && (hazard > 0f || (severity == Severity.Danger && dangerPulse))
 
     fun draw(canvas: Canvas, width: Float, height: Float, nowMs: Long) {
         val s = strokePx
@@ -77,14 +81,46 @@ class NeonAlertPainter {
         clipPath.lineTo(width - s, innerTop)
         clipPath.close()
 
+        // Soft glow backing under the whole shape.
+        framePaint.strokeWidth = s * 5f
+        framePaint.color = withAlpha(color, 0.10f * glow)
+        canvas.drawPath(clipPath, framePaint)
+
         if (filled) {
             fillPaint.color = withAlpha(color, 0.13f * glow)
             canvas.drawPath(clipPath, fillPaint)
+        }
+        if (scanlines) {
+            val step = max(s * 2.4f, 3f)
+            fillPaint.color = withAlpha(0xFF000000.toInt(), 0.22f)
+            canvas.save()
+            canvas.clipPath(clipPath)
+            var y = innerTop + step
+            while (y < height - s) {
+                canvas.drawRect(s, y, width - s, y + step * 0.4f, fillPaint)
+                y += step
+            }
+            canvas.restore()
         }
         framePaint.strokeWidth = s
         framePaint.color = withAlpha(color, 0.85f * glow)
         canvas.drawPath(clipPath, framePaint)
 
+        // Colour spine along the leading edge.
+        fillPaint.color = withAlpha(color, 0.9f * glow)
+        canvas.drawRect(s + notch * 0.4f, innerTop, s + notch * 0.9f, height - s, fillPaint)
+        fillPaint.color = withAlpha(mixColors(color, 0xFFFFFFFF.toInt(), 0.6f), glow)
+        canvas.drawRect(s + notch * 0.4f, innerTop, s + notch * 0.5f, height - s, fillPaint)
+
+        // Pulsing double border for danger alerts.
+        if (severity == Severity.Danger && dangerPulse && animate) {
+            val t = 0.5f + 0.5f * (nowMs % DANGER_PERIOD_MS) / DANGER_PERIOD_MS.toFloat()
+            val wave = 0.5f - 0.5f * cos(2.0 * Math.PI * t).toFloat()
+            framePaint.strokeWidth = s * 2.2f
+            framePaint.color = withAlpha(color, (0.25f + 0.45f * wave) * glow)
+            canvas.drawPath(clipPath, framePaint)
+            framePaint.strokeWidth = s
+        }
         // Marching hazard strip along the top edge.
         if (hz > 0f && animate) {
             val period = s * 8f
@@ -148,17 +184,24 @@ class NeonAlertPainter {
         textPaint.color = labelColor
         canvas.drawText(text.uppercase(), textX, baseline, textPaint)
 
-        // Trailing chevrons.
+        // Trailing chevrons, drawn only when the label leaves room for them.
         if (chevrons) {
-            chevronPaint.strokeWidth = s
-            chevronPaint.color = withAlpha(color, 0.8f * glow)
             val cw = textH * 0.34f
-            var x = width - s - cw * 2.2f
-            for (i in 0 until 2) {
-                canvas.drawLine(x, cy - textH * 0.22f, x + cw, cy, chevronPaint)
-                canvas.drawLine(x + cw, cy, x, cy + textH * 0.22f, chevronPaint)
-                x += cw * 1.3f
+            val chevronsW = cw * 3.3f
+            if (textX + textPaint.measureText(text.uppercase()) + chevronsW < width - s) {
+                chevronPaint.strokeWidth = s
+                chevronPaint.color = withAlpha(color, 0.8f * glow)
+                var x = width - s - cw * 2.2f
+                for (i in 0 until 2) {
+                    canvas.drawLine(x, cy - textH * 0.22f, x + cw, cy, chevronPaint)
+                    canvas.drawLine(x + cw, cy, x, cy + textH * 0.22f, chevronPaint)
+                    x += cw * 1.3f
+                }
             }
         }
+    }
+
+    private companion object {
+        const val DANGER_PERIOD_MS = 1600L
     }
 }

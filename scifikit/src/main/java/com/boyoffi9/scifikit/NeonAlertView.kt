@@ -48,6 +48,7 @@ class NeonAlertView @JvmOverloads constructor(
             painter.icon = getBoolean(R.styleable.NeonAlertView_sfAlertIcon, true)
             painter.chevrons = getBoolean(R.styleable.NeonAlertView_sfAlertChevrons, false)
             painter.hazard = getFloat(R.styleable.NeonAlertView_sfAlertHazard, 0f)
+            painter.scanlines = getBoolean(R.styleable.NeonAlertView_sfAlertScanlines, true)
             painter.accentColor = getColor(R.styleable.NeonAlertView_sfAccentColor, painter.accentColor)
         }
         painter.animate = animationsEnabled()

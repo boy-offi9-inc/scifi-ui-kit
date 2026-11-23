@@ -53,6 +53,7 @@ class NeonProgressView @JvmOverloads constructor(
             painter.warning = getFloat(R.styleable.NeonProgressView_sfWarningAt, painter.warning)
             painter.ticks = getInt(R.styleable.NeonProgressView_sfTicks, painter.ticks)
             painter.showPercent = getBoolean(R.styleable.NeonProgressView_sfShowPercent, true)
+            painter.segmented = getBoolean(R.styleable.NeonProgressView_sfProgressSegmented, false)
             painter.accentColor = getColor(R.styleable.NeonProgressView_sfAccentColor, painter.accentColor)
             painter.warningColor = getColor(R.styleable.NeonProgressView_sfWarningColor, painter.warningColor)
         }

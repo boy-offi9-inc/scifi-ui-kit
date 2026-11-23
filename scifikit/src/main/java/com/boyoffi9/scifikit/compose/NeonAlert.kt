@@ -35,6 +35,7 @@ fun NeonAlert(
     showIcon: Boolean = true,
     showChevrons: Boolean = false,
     hazard: Float = 0f,
+    scanlines: Boolean = true,
     fontSize: TextUnit = 14.sp,
     minHeight: Dp = 40.dp,
     accentColor: Color = Color(LocalSciFiPalette.current.accent),
@@ -55,6 +56,7 @@ fun NeonAlert(
     painter.icon = showIcon
     painter.chevrons = showChevrons
     painter.hazard = hazard
+    painter.scanlines = scanlines
     painter.accentColor = accentColor.toArgb()
     painter.successColor = successColor.toArgb()
     painter.warningColor = warningColor.toArgb()
@@ -65,8 +67,8 @@ fun NeonAlert(
     painter.textSizePx = with(density) { fontSize.toPx() }
     painter.animate = animate
 
-    LaunchedEffect(animate, hazard) {
-        if (animate && hazard > 0f) {
+    LaunchedEffect(animate, hazard, severity) {
+        if (animate && (hazard > 0f || severity == Severity.Danger)) {
             while (true) time = withFrameMillis { it }
         } else {
             time = withFrameMillis { it }

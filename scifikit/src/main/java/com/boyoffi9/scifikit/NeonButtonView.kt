@@ -100,6 +100,12 @@ class NeonButtonView @JvmOverloads constructor(
             painter.onAccentColor = getColor(R.styleable.NeonButtonView_sfOnAccentColor, painter.onAccentColor)
             painter.strokePx = getDimension(R.styleable.NeonButtonView_sfStrokeWidth, painter.strokePx)
             painter.config = readNeon()
+            if (hasValue(R.styleable.NeonButtonView_sfNeonCut)) {
+                painter.config = painter.config.copy(cut = getBoolean(R.styleable.NeonButtonView_sfNeonCut, true))
+            }
+            if (hasValue(R.styleable.NeonButtonView_sfNeonNotch)) {
+                painter.config = painter.config.copy(notch = getFloat(R.styleable.NeonButtonView_sfNeonNotch, painter.config.notch))
+            }
         }
         if (contentDescription.isNullOrEmpty() && painter.text.isNotEmpty()) {
             contentDescription = painter.text

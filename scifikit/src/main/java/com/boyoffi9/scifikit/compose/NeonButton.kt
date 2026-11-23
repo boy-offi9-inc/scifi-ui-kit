@@ -46,6 +46,8 @@ fun NeonButton(
     onAccentColor: Color = Color(LocalSciFiPalette.current.background),
     strokeWidth: Dp = 1.5.dp,
     style: NeonConfig = NeonStyle.Outline.config,
+    cut: Boolean? = null,
+    notch: Float? = null,
 ) {
     val density = LocalDensity.current
     val glow = LocalSciFiPalette.current.glow
@@ -63,6 +65,8 @@ fun NeonButton(
     painter.onAccentColor = onAccentColor.toArgb()
     painter.strokePx = with(density) { strokeWidth.toPx() }
     painter.config = style
+    cut?.let { painter.config = painter.config.copy(cut = it) }
+    notch?.let { painter.config = painter.config.copy(notch = it) }
     painter.glow = glow
     painter.enabled = enabled
     painter.focused = focused

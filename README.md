@@ -13,13 +13,13 @@ No GIFs, no Lottie, no image assets. Works in XML Views and Jetpack Compose.
 |---|---|---|---|
 | HUD frame | `HudFrameView` | `HudFrame` | Chamfered panel with neon glow, scanlines, corner brackets and a light segment that travels around the border. Holds your content. |
 | Glitch text | `GlitchTextView` | `GlitchText` | Text that decodes from random characters, then glitches in bursts (RGB split and sliced displacement) and when touched. Six decode modes, four glitch modes and four touch modes. |
-| Holo radar | `HoloRadarView` | `HoloRadar` | Radar with range rings, degree ticks, a rotating sweep with a fading trail, and blips that ping when the sweep reaches them. Five looks, from clean to CRT. |
-| Sci-fi card | `SciFiCardView` | `SciFiCard` | Content card with a cut-corner frame, layered border, accent bands, hazard stripes, target ring and optional grid. Three styles. |
-| Neon button | `NeonButtonView` | `NeonButton` | Button in three styles (outline, solid, ghost). Pressing it surges the glow and flickers the edge. |
+| Holo radar | `HoloRadarView` | `HoloRadar` | Radar with range rings and labels, degree ticks, HUD corner brackets, a rotating sweep with a fading trail, targeting reticles on fresh contacts, and blips that ping when the sweep reaches them. Six looks, from clean to CRT. |
+| Sci-fi card | `SciFiCardView` | `SciFiCard` | Content card with a cut-corner frame, layered border, accent bands, hazard stripes, target ring and optional grid. Five styles. |
+| Neon button | `NeonButtonView` | `NeonButton` | Button in six styles (outline, solid, ghost, charge, angled, slab). Cut-corner frame, inner echo line, corner notch marks; pressing it surges the glow and flickers the edge. |
 | Neon progress | `NeonProgressView` | `NeonProgress` | Labeled status bar with bracketed track, ticks and a glowing fill that turns to the warning colour past a threshold. |
 | Neon badge | `NeonBadgeView` | `NeonBadge` | Hex-framed tag chip in five states (normal, success, warning, danger, muted), with an optional pulsing status dot. |
 | Neon gauge | `NeonGaugeView` | `NeonGauge` | Radial gauge — donut percent, speedometer dial or any arc span. Big mono readout in the middle, unit label under it, optional major ticks, warning colour past a threshold. |
-| Neon alert | `NeonAlertView` | `NeonAlert` | Alert banner in four severities (info, success, warning, danger) with a severity icon, optional marching hazard strip and trailing chevrons. |
+| Neon alert | `NeonAlertView` | `NeonAlert` | Alert banner in four severities (info, success, warning, danger) with a severity icon, colour spine, glow backing, scanline texture, optional marching hazard strip and trailing chevrons. |
 
 Both versions of each component call the same painter class, so they render identically.
 
@@ -196,7 +196,7 @@ Setting `decode` or `text` replays the decode. `HudFrameView` and `HoloRadarView
 
 ## Holo radar
 
-Angles start at 3 o'clock and increase clockwise. Distance is 0 at the centre and 1 at the rim. The view is 220dp square when sized with `wrap_content`. The radar is standalone: it does not need a frame or card around it.
+Angles start at 3 o'clock and increase clockwise. Distance is 0 at the centre and 1 at the rim. The view is 220dp square when sized with `wrap_content`. The radar is standalone: it does not need a frame or card around it. The `hud` flag draws corner brackets around the disc and targeting reticles on freshly swept contacts; `rangeLabels` numbers the rings. Both are on by default and configurable on `RadarConfig`.
 
 | XML attribute | Compose parameter | Default |
 |---|---|---|
@@ -218,6 +218,7 @@ Angles start at 3 o'clock and increase clockwise. Distance is 0 at the centre an
 | `cyberpunk` | Square contacts alternating with the theme's secondary colour, a doubled sweep line and flicker. |
 | `phosphor` | CRT look: long trail, lingering blips, scanlines. |
 | `hologram` | Cross contacts, a scan band moving over the disc and a hologram flicker. |
+| `sonar` | Diamond contacts in the secondary colour, a wide trail, dashed rings and compass letters. |
 
 ```xml
 <com.boyoffi9.scifikit.HoloRadarView
@@ -250,7 +251,9 @@ A container for your own content, framed like a HUD panel. Cut corners, a layere
 | Style | Look |
 |---|---|
 | `Panel` | Cuts on all four corners, double border, thick accent bands, side ticks and hazard stripes. |
-| `Outline` | Thin frame with corner brackets, a target ring, arrows, dotted rows, a hazard footer and a faint grid. |
+| `Outline` | Thin frame with a layered border, corner brackets, a target ring, arrows, dotted rows, a hazard footer and a faint grid. |
+| `Targeted` | Flat-top hostile frame: bracket corners, side ticks, a top hazard strip and a marching target ring. |
+| `Terminal` | Calm console frame with one sweep-cut corner, a layered inner line, dot rows and edge arrows. |
 | `Plain` | Cut corners and a thin border only. |
 
 ```xml
@@ -279,13 +282,16 @@ The card picks up the theme palette like every other component. Without padding 
 
 ## Neon button
 
-A button drawn on Canvas with a neon edge. Three styles, one press effect.
+A button drawn on Canvas with a neon edge. Six styles, one press effect.
 
 | Style | Look |
 |---|---|
 | `Outline` | Glowing border over a faint fill. The default. |
 | `Solid` | Filled with the accent colour, text in the on-accent colour. |
 | `Ghost` | No border or fill, only the text and an underline. |
+| `Charge` | Cut-corner frame that breathes with a slow idle pulse. |
+| `Angled` | Deep corner cuts with bright notch marks and a soft flicker. |
+| `Slab` | Solid square-cornered slab, no cut corners or notches. |
 
 Pressing a button surges the glow to full strength and flickers it back down. While held, the glow stays lifted.
 
@@ -307,13 +313,13 @@ NeonButton(
 
 Fine-tune a style with `copy`: `NeonStyle.Outline.config.copy(surge = 1.5f, flicker = 0f)`.
 
-`NeonConfig` fields: `fill`, `border`, `underline`, `inverseText`, `corner`, `glow`, `pulse` (idle breathing, 0 is off), `surge`, `flicker`, `surgeMs`. XML overrides: `sfNeonFill`, `sfNeonGlow`, `sfNeonPulse`, `sfNeonSurge`, `sfNeonFlicker`, `sfNeonSurgeMs`, `sfNeonCorner`, plus `sfAccentColor`, `sfOnAccentColor` and `sfStrokeWidth`.
+`NeonConfig` fields: `fill`, `border`, `underline`, `inverseText`, `corner`, `cut` (cut-corner silhouette), `notch` (corner notch marks, 0 is off), `glow`, `pulse` (idle breathing, 0 is off), `surge`, `flicker`, `surgeMs`. XML overrides: `sfNeonFill`, `sfNeonGlow`, `sfNeonPulse`, `sfNeonSurge`, `sfNeonFlicker`, `sfNeonSurgeMs`, `sfNeonCorner`, `sfNeonCut`, `sfNeonNotch`, plus `sfAccentColor`, `sfOnAccentColor` and `sfStrokeWidth`. Compose adds `cut` and `notch` overrides.
 
 Colours default to the theme palette. A disabled button is dimmed and ignores presses, and keyboard focus draws a ring. The button reports itself as a button to screen readers, and with animations turned off the press effect is skipped.
 
 ## Neon progress
 
-A labeled status bar in the HUD style: bracketed track, glowing fill with tick marks, a monospace label on the left and a zero-padded percentage on the right. Above the warning threshold the bar turns to the warning colour (default 85%).
+A labeled status bar in the HUD style: bracketed track, glowing fill with tick marks, a monospace label on the left and a zero-padded percentage on the right. Above the warning threshold the bar turns to the warning colour (default 85%) and breathes. `segmented` swaps the continuous fill for a 20-cell LED bank whose newest segment flickers.
 
 ```xml
 <com.boyoffi9.scifikit.NeonProgressView
@@ -330,7 +336,7 @@ NeonProgress(
 )
 ```
 
-The fill animates to new values. XML attributes: `sfLabel`, `sfProgress` (0–1), `sfWarningAt` (default 0.85), `sfTicks` (default 8, 0 hides them), `sfShowPercent` (default true), `sfAccentColor`, `sfWarningColor`. Compose adds `barHeight`, `warningAt` and per-colour overrides. The view reports the label and current percent to screen readers.
+The fill animates to new values. XML attributes: `sfLabel`, `sfProgress` (0–1), `sfWarningAt` (default 0.85), `sfTicks` (default 8, 0 hides them), `sfShowPercent` (default true), `sfProgressSegmented` (default false), `sfAccentColor`, `sfWarningColor`. Compose adds `barHeight`, `warningAt`, `segmented` and per-colour overrides. The view reports the label and current percent to screen readers.
 
 ## Neon badge
 
@@ -397,7 +403,7 @@ The arc animates to new values (Compose tweens; the view eases on its own). XML 
 
 ## Neon alert
 
-An alert banner or status strip: "SCAN COMPLETE — NO HOSTILES DETECTED", "WARNING", "SIGNAL STABLE". Four severities, each with its own colour and icon shape — `Info` (diamond), `Success` (check), `Warning` (triangle), `Danger` (triangle). The left edge is notched, the frame is cut-corner, and a `hazard` value greater than zero adds a marching hazard strip along the top.
+An alert banner or status strip: "SCAN COMPLETE — NO HOSTILES DETECTED", "WARNING", "SIGNAL STABLE". Four severities, each with its own colour and icon shape — `Info` (diamond), `Success` (check), `Warning` (triangle), `Danger` (triangle). The left edge is notched, the frame is cut-corner, a colour spine runs down the leading edge over a glow backing and a scanline texture, and a `hazard` value greater than zero adds a marching hazard strip along the top. Danger alerts breathe with a pulsing border.
 
 ```xml
 <com.boyoffi9.scifikit.NeonAlertView
@@ -423,7 +429,7 @@ NeonAlert(
 )
 ```
 
-The hazard strip marches while animating and freezes with animations off. XML attributes: `sfAlertText`, `sfSeverity` (`info`/`success`/`warning`/`danger`), `sfAlertFilled`, `sfAlertIcon`, `sfAlertChevrons`, `sfAlertHazard` (0–0.3 of the height, 0 is off), `sfAccentColor`. Compose overrides every severity colour individually. The view reads as "<severity> alert: <text>" to screen readers.
+The hazard strip marches while animating and freezes with animations off. XML attributes: `sfAlertText`, `sfSeverity` (`info`/`success`/`warning`/`danger`), `sfAlertFilled`, `sfAlertIcon`, `sfAlertChevrons`, `sfAlertHazard` (0–0.3 of the height, 0 is off), `sfAlertScanlines`, `sfAccentColor`. Compose overrides every severity colour individually. The view reads as "<severity> alert: <text>" to screen readers.
 
 ## Theming
 

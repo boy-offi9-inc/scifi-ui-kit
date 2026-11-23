@@ -6,6 +6,7 @@ import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.RectF
 import android.graphics.SweepGradient
+import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.max
 import kotlin.math.min
@@ -80,12 +81,14 @@ class HoloRadarPainter {
     private var ticks = FloatArray(0)
     private var grid = FloatArray(0)
     private var lines = FloatArray(0)
+    private var hud = FloatArray(0)
     private var geoCx = -1f
     private var geoCy = -1f
     private var geoRadius = -1f
     private var geoStroke = -1f
     private var geoTicks = -1
     private var geoLines = false
+    private var geoHud = false
 
     fun draw(canvas: Canvas, width: Float, height: Float, nowMs: Long) {
         val cx = width / 2f
@@ -134,6 +137,9 @@ class HoloRadarPainter {
 
         if (cfg.cardinals) drawCardinals(canvas, cx, cy, radius, m)
 
+        if (cfg.rangeLabels) drawRangeLabels(canvas, cx, cy, radius, m)
+        if (cfg.hud) drawHud(canvas, m)
+
         if (sweep) {
             ensureShader(cx, cy, cfg)
             arcRect.set(cx - radius, cy - radius, cx + radius, cy + radius)
@@ -179,6 +185,11 @@ class HoloRadarPainter {
                 linePaint.color = withAlpha(color, (1f - t) * 0.8f * m)
                 canvas.drawCircle(bx, by, blipR * (1f + 3f * t), linePaint)
             }
+
+            if (cfg.hud && sweep && since < RETICLE_DEG) {
+                val t = since / RETICLE_DEG
+                drawReticle(canvas, bx, by, blipR * 2.2f, color, (1f - t).coerceIn(0f, 1f) * m)
+            }
         }
 
         if (cfg.scanlines || (cfg.scanBand && animate)) {
@@ -213,6 +224,37 @@ class HoloRadarPainter {
 
         fillPaint.color = mixColors(accentColor, 0xFFFFFFFF.toInt(), 0.6f)
         canvas.drawCircle(cx, cy, strokePx * 1.6f, fillPaint)
+    }
+
+    private fun drawRangeLabels(canvas: Canvas, cx: Float, cy: Float, radius: Float, m: Float) {
+        textPaint.textSize = max(radius * 0.08f, strokePx * 3f)
+        textPaint.textAlign = Paint.Align.LEFT
+        textPaint.color = withAlpha(accentColor, 0.45f * m)
+        for (i in 1 until rings) {
+            val r = radius * i / rings
+            canvas.drawText("${(i * 100 / rings)}0", cx + r * 0.71f, cy - r * 0.71f - strokePx, textPaint)
+        }
+        textPaint.textAlign = Paint.Align.CENTER
+    }
+
+    private fun drawHud(canvas: Canvas, m: Float) {
+        linePaint.strokeWidth = max(1f, strokePx)
+        linePaint.color = withAlpha(accentColor, 0.75f * m)
+        canvas.drawLines(hud, linePaint)
+    }
+
+    private fun drawReticle(canvas: Canvas, x: Float, y: Float, r: Float, color: Int, a: Float) {
+        linePaint.strokeWidth = max(1f, strokePx * 0.8f)
+        linePaint.color = withAlpha(mixColors(color, 0xFFFFFFFF.toInt(), 0.5f), a)
+        val g = r * 0.55f
+        canvas.drawLine(x - r, y - g, x - r, y - r, linePaint)
+        canvas.drawLine(x - r, y - r, x - g, y - r, linePaint)
+        canvas.drawLine(x + g, y - r, x + r, y - r, linePaint)
+        canvas.drawLine(x + r, y - r, x + r, y - g, linePaint)
+        canvas.drawLine(x + r, y + g, x + r, y + r, linePaint)
+        canvas.drawLine(x + r, y + r, x + g, y + r, linePaint)
+        canvas.drawLine(x - g, y + r, x - r, y + r, linePaint)
+        canvas.drawLine(x - r, y + r, x - r, y + g, linePaint)
     }
 
     private fun drawBlip(canvas: Canvas, shape: BlipShape, x: Float, y: Float, r: Float) {
@@ -285,7 +327,7 @@ class HoloRadarPainter {
 
     private fun ensureGeometry(cx: Float, cy: Float, radius: Float, cfg: RadarConfig) {
         if (cx == geoCx && cy == geoCy && radius == geoRadius && strokePx == geoStroke &&
-            cfg.ticks == geoTicks && cfg.scanlines == geoLines
+            cfg.ticks == geoTicks && cfg.scanlines == geoLines && cfg.hud == geoHud
         ) return
         geoCx = cx
         geoCy = cy
@@ -293,6 +335,7 @@ class HoloRadarPainter {
         geoStroke = strokePx
         geoTicks = cfg.ticks
         geoLines = cfg.scanlines
+        geoHud = cfg.hud
 
         val count = cfg.ticks.coerceIn(4, 180)
         val majorEvery = max(1, count / 12)
@@ -354,11 +397,37 @@ class HoloRadarPainter {
             }
             lines = rows
         }
+
+        if (cfg.hud) {
+            // Corner brackets outside the rim, HUD-frame style: two strokes per
+            // corner, one horizontal and one vertical, meeting at the corner.
+            val len = radius * 0.2f
+            val out = radius + strokePx * 4f
+            val corners = floatArrayOf(-1f, -1f, 1f, -1f, -1f, 1f, 1f, 1f)
+            val out4 = FloatArray(32)
+            var k = 0
+            for (c in corners.indices step 2) {
+                val sx = corners[c]
+                val sy = corners[c + 1]
+                val ox = cx + sx * out
+                val oy = cy + sy * out
+                out4[k++] = ox
+                out4[k++] = oy
+                out4[k++] = ox - sx * len
+                out4[k++] = oy
+                out4[k++] = ox
+                out4[k++] = oy
+                out4[k++] = ox
+                out4[k++] = oy - sy * len
+            }
+            hud = out4
+        }
     }
 
     companion object {
         private const val PARKED_ANGLE = 40f
         private const val PING_DEG = 50f
+        private const val RETICLE_DEG = 45f
         private const val FLICKER_STEP_MS = 70L
         private const val BAND_PERIOD_MS = 3200L
 

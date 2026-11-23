@@ -9,6 +9,8 @@ data class NeonConfig(
     val underline: Boolean = false,
     val inverseText: Boolean = false,
     val corner: Float = 0.3f,
+    val cut: Boolean = true,
+    val notch: Float = 0.5f,
     val glow: Float = 1f,
     val pulse: Float = 0f,
     val surge: Float = 1f,
@@ -19,7 +21,26 @@ data class NeonConfig(
 enum class NeonStyle(val config: NeonConfig) {
     Outline(NeonConfig()),
     Solid(NeonConfig(fill = 0.92f, inverseText = true, glow = 0.8f)),
-    Ghost(NeonConfig(fill = 0f, border = false, underline = true, corner = 0f)),
+    Ghost(NeonConfig(fill = 0f, border = false, underline = true, corner = 0f, cut = false, notch = 0f)),
+    Charge(
+        NeonConfig(
+            fill = 0.16f,
+            corner = 0f,
+            notch = 1f,
+            glow = 1.4f,
+            pulse = 0.35f,
+        ),
+    ),
+    Angled(
+        NeonConfig(
+            fill = 0.05f,
+            corner = 0f,
+            notch = 1.8f,
+            glow = 1.2f,
+            flicker = 0.3f,
+        ),
+    ),
+    Slab(NeonConfig(fill = 0.85f, inverseText = true, corner = 0f, cut = false, glow = 0.5f, notch = 0f)),
 }
 
 private const val PULSE_PERIOD_MS = 2400.0

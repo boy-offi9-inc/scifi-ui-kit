@@ -41,7 +41,7 @@ Add the dependency to your app module:
 
 ```kotlin
 dependencies {
-    implementation("com.github.boy-offi9-inc:scifi-ui-kit:v0.9.0")
+    implementation("com.github.boy-offi9-inc:scifi-ui-kit:v0.10.0")
 }
 ```
 
@@ -49,7 +49,7 @@ Groovy DSL:
 
 ```groovy
 maven { url 'https://jitpack.io' }
-implementation 'com.github.boy-offi9-inc:scifi-ui-kit:v0.9.0'
+implementation 'com.github.boy-offi9-inc:scifi-ui-kit:v0.10.0'
 ```
 
 The version is the Git tag of the release. The badge above shows the latest one.

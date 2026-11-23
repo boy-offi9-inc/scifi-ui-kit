@@ -10,6 +10,7 @@ fun Context.sciFiPalette(): SciFiPalette {
         return SciFiPalette(
             accent = a.getColor(R.styleable.SciFiTheme_sfThemeAccent, defaults.accent),
             secondary = a.getColor(R.styleable.SciFiTheme_sfThemeSecondary, defaults.secondary),
+            danger = a.getColor(R.styleable.SciFiTheme_sfThemeDanger, defaults.danger),
             text = a.getColor(R.styleable.SciFiTheme_sfThemeText, defaults.text),
             dim = a.getColor(R.styleable.SciFiTheme_sfThemeDim, defaults.dim),
             background = a.getColor(R.styleable.SciFiTheme_sfThemeBackground, defaults.background),

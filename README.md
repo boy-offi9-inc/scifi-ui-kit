@@ -41,7 +41,7 @@ Add the dependency to your app module:
 
 ```kotlin
 dependencies {
-    implementation("com.github.boy-offi9-inc:scifi-ui-kit:v0.5.0")
+    implementation("com.github.boy-offi9-inc:scifi-ui-kit:v0.9.0")
 }
 ```
 
@@ -49,7 +49,7 @@ Groovy DSL:
 
 ```groovy
 maven { url 'https://jitpack.io' }
-implementation 'com.github.boy-offi9-inc:scifi-ui-kit:v0.5.0'
+implementation 'com.github.boy-offi9-inc:scifi-ui-kit:v0.9.0'
 ```
 
 The version is the Git tag of the release. The badge above shows the latest one.
@@ -353,7 +353,7 @@ NeonBadge(
 )
 ```
 
-XML attributes: `sfText`, `sfState` (`normal`/`success`/`warning`/`danger`/`muted`), `sfFilled`, `sfDot`, `sfAccentColor`. In Compose the `state` parameter takes `NeonBadgePainter.State`, and `successColor` is overridable per badge. Muted badges dim both frame and label and never animate.
+XML attributes: `sfText`, `sfState` (`normal`/`success`/`warning`/`danger`/`muted`), `sfFilled`, `sfDot`, `sfAccentColor`, `sfWarningColor`, `sfDangerColor`. In Compose the `state` parameter takes `NeonBadgePainter.State`, and `successColor`, `warningColor` and `dangerColor` are overridable per badge. Muted badges dim both frame and label and never animate.
 
 ## Neon gauge
 

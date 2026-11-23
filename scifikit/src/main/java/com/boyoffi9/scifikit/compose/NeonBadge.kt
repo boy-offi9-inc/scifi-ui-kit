@@ -37,6 +37,7 @@ fun NeonBadge(
     minWidth: Dp = 64.dp,
     accentColor: Color = Color(LocalSciFiPalette.current.accent),
     warningColor: Color = Color(LocalSciFiPalette.current.secondary),
+    dangerColor: Color = Color(LocalSciFiPalette.current.danger),
     successColor: Color = Color(0xFF3BFFA0),
     textColor: Color = Color(LocalSciFiPalette.current.text),
     dimColor: Color = Color(LocalSciFiPalette.current.dim),
@@ -53,6 +54,7 @@ fun NeonBadge(
     painter.dot = showDot
     painter.accentColor = accentColor.toArgb()
     painter.warningColor = warningColor.toArgb()
+    painter.dangerColor = dangerColor.toArgb()
     painter.successColor = successColor.toArgb()
     painter.labelColor = textColor.toArgb()
     painter.dimColor = dimColor.toArgb()

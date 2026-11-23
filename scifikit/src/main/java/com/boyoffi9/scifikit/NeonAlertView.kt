@@ -35,7 +35,7 @@ class NeonAlertView @JvmOverloads constructor(
 
         val palette = context.sciFiPalette()
         painter.accentColor = palette.accent
-        painter.dangerColor = palette.secondary
+        painter.dangerColor = palette.danger
         painter.labelColor = palette.text
         painter.glow = palette.glow
 

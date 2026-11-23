@@ -2,6 +2,7 @@ package com.boyoffi9.scifikit.core
 
 import android.graphics.Canvas
 import android.graphics.Paint
+import android.graphics.Path
 import android.graphics.Typeface
 import kotlin.math.min
 
@@ -35,6 +36,8 @@ class NeonProgressPainter {
     private val trackPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.STROKE }
     private val fillPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.FILL }
     private val tickPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.STROKE }
+    private val segPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.FILL }
+    private val shapePath = Path()
     private val textPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         typeface = Typeface.create(Typeface.MONOSPACE, Typeface.BOLD)
         letterSpacing = 0.08f
@@ -48,7 +51,7 @@ class NeonProgressPainter {
         return fm.descent - fm.ascent
     }
 
-    fun isAnimating(): Boolean = animate && (shown - progress).let { it > 0.0005f || it < -0.0005f }
+    fun isAnimating(): Boolean = animate && (progress > 0f || (shown - progress).let { it > 0.0005f || it < -0.0005f })
 
     fun draw(canvas: Canvas, width: Float, height: Float, nowMs: Long) {
         val s = strokePx
@@ -81,14 +84,36 @@ class NeonProgressPainter {
         canvas.drawLine(barRight, midY, barRight - cap, barTop, trackPaint)
         canvas.drawLine(barRight, midY, barRight - cap, barBottom, trackPaint)
 
-        // Fill: glowing slab with a bright leading edge.
+        // Fill: glowing slab with brighter segment bands and a hot leading edge.
         if (show > 0f) {
             val fillRight = barLeft + (barRight - barLeft) * show
-            fillPaint.style = Paint.Style.FILL
-            fillPaint.color = withAlpha(color, 0.22f * glow)
+            fillPaint.color = withAlpha(color, 0.16f * glow)
             canvas.drawRect(barLeft + cap, barTop + s, fillRight, barBottom - s, fillPaint)
-            fillPaint.color = withAlpha(color, 0.9f * glow)
-            canvas.drawRect(fillRight - s * 1.6f, barTop + s, fillRight, barBottom - s, fillPaint)
+            // Angled bands give the fill a segmented, metered look; the most
+            // recent band is brightest so the bar reads as charging forward.
+            if (animate) {
+                val band = s * 9f
+                val phase = (nowMs * 0.05f) % band
+                var x = barLeft + cap - band + phase
+                while (x < fillRight) {
+                    val fresh = (fillRight - x) < band * 3f
+                    segPaint.color = withAlpha(color, (if (fresh) 0.16f else 0.09f) * glow)
+                    canvas.drawRect(x, barTop + s, min(x + band * 0.45f, fillRight), barBottom - s, segPaint)
+                    x += band
+                }
+            }
+            fillPaint.color = withAlpha(color, 0.85f * glow)
+            canvas.drawRect(fillRight - s * 1.2f, barTop + s, fillRight, barBottom - s, fillPaint)
+            fillPaint.color = color
+            canvas.drawRect(fillRight - s * 0.5f, barTop + s * 0.5f, fillRight, barBottom - s * 0.5f, fillPaint)
+            // Leading edge spark: a small triangle tip pushing into the track.
+            segPaint.color = withAlpha(color, glow)
+            shapePath.reset()
+            shapePath.moveTo(fillRight, barTop)
+            shapePath.lineTo(fillRight + s * 2.2f, midY)
+            shapePath.lineTo(fillRight, barBottom)
+            shapePath.close()
+            canvas.drawPath(shapePath, segPaint)
         }
 
         // Tick marks along the track.

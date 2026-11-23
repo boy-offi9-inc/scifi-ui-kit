@@ -18,7 +18,8 @@ class NeonBadgePainter {
     var text: String = ""
     var state: State = State.Normal
     var accentColor: Int = 0xFF00E5FF.toInt()
-    var warningColor: Int = 0xFFFF2D6F.toInt()
+    var warningColor: Int = 0xFFFFB020.toInt()
+    var dangerColor: Int = 0xFFFF2D6F.toInt()
     var successColor: Int = 0xFF3BFFA0.toInt()
     var labelColor: Int = 0xFFE8FDFF.toInt()
     var dimColor: Int = 0xFF7FB8C4.toInt()
@@ -31,6 +32,7 @@ class NeonBadgePainter {
 
     private val framePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.STROKE }
     private val fillPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.FILL }
+    private val glowPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.STROKE }
     private val textPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         textAlign = Paint.Align.CENTER
         typeface = Typeface.create(Typeface.MONOSPACE, Typeface.BOLD)
@@ -43,13 +45,21 @@ class NeonBadgePainter {
         State.Normal -> accentColor
         State.Success -> successColor
         State.Warning -> warningColor
-        State.Danger -> warningColor
+        State.Danger -> dangerColor
         State.Muted -> dimColor
     }
 
     fun textWidthPx(): Float {
         textPaint.textSize = textSizePx
         return textPaint.measureText(text.uppercase())
+    }
+
+    fun preferredHeightPx(): Float = textHeightPx() + strokePx * 5f
+
+    private fun textHeightPx(): Float {
+        textPaint.textSize = textSizePx
+        val fm = textPaint.fontMetrics
+        return fm.descent - fm.ascent
     }
 
     fun isAnimating(): Boolean = animate && dot && state != State.Muted
@@ -80,6 +90,16 @@ class NeonBadgePainter {
             fillPaint.color = withAlpha(color, 0.16f * glow)
             canvas.drawPath(hexPath, fillPaint)
         }
+        // Outer bloom: a few wide, faint strokes behind the frame read as a
+        // glow on the dark background, and a MaskFilter would blur the corners.
+        if (state != State.Muted && glow > 0f) {
+            glowPaint.strokeWidth = s * 7f
+            glowPaint.color = withAlpha(color, 0.10f * glow)
+            canvas.drawPath(hexPath, glowPaint)
+            glowPaint.strokeWidth = s * 4f
+            glowPaint.color = withAlpha(color, 0.14f * glow)
+            canvas.drawPath(hexPath, glowPaint)
+        }
         framePaint.strokeWidth = s
         framePaint.color = withAlpha(color, if (state == State.Muted) 0.4f else 0.85f * glow)
         canvas.drawPath(hexPath, framePaint)
@@ -92,8 +112,10 @@ class NeonBadgePainter {
             val pulse = if (animate && state != State.Muted) {
                 0.6f + 0.4f * ((nowMs % 1200L) / 1200f)
             } else 1f
-            dotPaint.color = withAlpha(color, 0.25f * glow * pulse)
-            canvas.drawCircle(cx, cy, r * (1.6f + 0.6f * pulse), dotPaint)
+            dotPaint.color = withAlpha(color, 0.18f * glow * pulse)
+            canvas.drawCircle(cx, cy, r * (2.6f + 1.0f * pulse), dotPaint)
+            dotPaint.color = withAlpha(color, 0.35f * glow)
+            canvas.drawCircle(cx, cy, r * 1.9f, dotPaint)
             dotPaint.color = withAlpha(color, glow)
             canvas.drawCircle(cx, cy, r, dotPaint)
             textX += (textH * 0.9f + padX) / 2f

@@ -145,6 +145,8 @@
         <attr name="sfFilled" format="boolean" />
         <attr name="sfDot" format="boolean" />
         <attr name="sfAccentColor" />
+        <attr name="sfWarningColor" />
+        <attr name="sfDangerColor" format="color" />
     </declare-styleable>
 
     <declare-styleable name="NeonGaugeView">
@@ -180,6 +182,7 @@
     <declare-styleable name="SciFiTheme">
         <attr name="sfThemeAccent" format="color" />
         <attr name="sfThemeSecondary" format="color" />
+        <attr name="sfThemeDanger" format="color" />
         <attr name="sfThemeText" format="color" />
         <attr name="sfThemeDim" format="color" />
         <attr name="sfThemeBackground" format="color" />

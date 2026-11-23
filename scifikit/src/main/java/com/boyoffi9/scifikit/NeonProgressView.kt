@@ -59,6 +59,15 @@ class NeonProgressView @JvmOverloads constructor(
         painter.animate = animationsEnabled()
     }
 
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        val w = resolveSize(suggestedMinimumWidth, widthMeasureSpec)
+        val textH = if (painter.showPercent || painter.label.isNotEmpty()) {
+            painter.textHeightPx() + painter.strokePx * 3f
+        } else 0f
+        val h = textH + painter.barHeightPx + paddingTop + paddingBottom
+        setMeasuredDimension(w, resolveSize(h.toInt(), heightMeasureSpec))
+    }
+
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         painter.draw(canvas, width.toFloat(), height.toFloat(), SystemClock.uptimeMillis())

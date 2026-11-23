@@ -36,6 +36,7 @@ class NeonBadgeView @JvmOverloads constructor(
         val palette = context.sciFiPalette()
         painter.accentColor = palette.accent
         painter.warningColor = palette.secondary
+        painter.dangerColor = palette.danger
         painter.labelColor = palette.text
         painter.dimColor = palette.dim
         painter.glow = palette.glow
@@ -48,8 +49,17 @@ class NeonBadgeView @JvmOverloads constructor(
             painter.filled = getBoolean(R.styleable.NeonBadgeView_sfFilled, false)
             painter.dot = getBoolean(R.styleable.NeonBadgeView_sfDot, false)
             painter.accentColor = getColor(R.styleable.NeonBadgeView_sfAccentColor, painter.accentColor)
+            painter.warningColor = getColor(R.styleable.NeonBadgeView_sfWarningColor, painter.warningColor)
+            painter.dangerColor = getColor(R.styleable.NeonBadgeView_sfDangerColor, painter.dangerColor)
         }
         painter.animate = animationsEnabled()
+    }
+
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        setMeasuredDimension(
+            resolveSize(measuredWidth, widthMeasureSpec),
+            resolveSize(painter.preferredHeightPx().toInt() + paddingTop + paddingBottom, heightMeasureSpec),
+        )
     }
 
     override fun onDraw(canvas: Canvas) {

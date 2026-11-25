@@ -81,12 +81,13 @@ class NeonGaugePainter {
         val color = if (p >= warning) warningColor else accentColor
 
         // Instrument frame: cut corners on the top-left and bottom-right, like
-        // the card/button silhouette. The dial lives inside it.
-        val l = s * 1.5f
-        val t = s * 1.5f
+        // the card/button silhouette. The dial lives inside it. Insets scale
+        // with the view, not the stroke, so small/high-density views still draw.
+        val l = s
+        val t = s
         val r = width - l
         val b = height - t
-        if (r - l < s * 14f || b - t < s * 14f) return
+        if (r - l < s * 6f || b - t < s * 6f) return
         val cut = min(r - l, b - t) * 0.10f
         framePath.reset()
         framePath.moveTo(l + cut, t)
@@ -116,9 +117,9 @@ class NeonGaugePainter {
 
         // Dial arc, inset from the frame with room for the readout row.
         val cx = width / 2f
-        val dialTop = t + s * 2f
+        val dialTop = t + s
         val cy = dialTop + (b - dialTop) / 2f
-        val maxR = min(r - l, b - dialTop) / 2f - s * 2.5f
+        val maxR = min(r - l, b - dialTop) / 2f - s * 1.5f
         val rad = maxR - s / 2f
         if (rad <= 0f) return
 

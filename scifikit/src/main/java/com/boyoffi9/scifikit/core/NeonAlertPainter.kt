@@ -9,9 +9,9 @@ import kotlin.math.max
 import kotlin.math.min
 
 /**
- * Painter for alert banners and strips: "WARNING", "DANGER", "SCAN COMPLETE",
- * "SIGNAL STABLE". Severity drives the colour; optional leading icon triangle,
- * trailing status chevrons, and a marching hazard edge.
+ * Painter for HUD notification blocks: cut-corner frame with corner brackets,
+ * a severity glyph column on the leading edge, scanline texture and a marching
+ * hazard edge. A cockpit advisory, not a rounded toast.
  */
 class NeonAlertPainter {
 
@@ -28,14 +28,18 @@ class NeonAlertPainter {
     var strokePx: Float = 2f
     var textSizePx: Float = 30f
     var filled: Boolean = true
-    var icon: Boolean = true          // leading triangle icon
+    var icon: Boolean = true          // leading glyph in the severity column
     var chevrons: Boolean = false     // trailing >> marks
     var hazard: Float = 0f            // 0 off, >0 marching hazard strip along the top
     var scanlines: Boolean = true     // faint CRT texture across the body
     var dangerPulse: Boolean = true   // danger alerts breathe
     var animate: Boolean = true
 
-    private val framePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.STROKE }
+    private val framePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.STROKE
+        strokeJoin = Paint.Join.MITER
+        strokeCap = Paint.Cap.SQUARE
+    }
     private val fillPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.FILL }
     private val textPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         typeface = Typeface.create(Typeface.MONOSPACE, Typeface.BOLD)
@@ -71,14 +75,23 @@ class NeonAlertPainter {
         val stripTop = if (hz > 0f) hz else 0f
         val innerTop = stripTop + s
 
-        // Frame: cut-corner strip (notches on the left edge).
-        val notch = min(height / 3f, s * 6f)
+        val l = s
+        val t = innerTop
+        val r = width - s
+        val b = height - s
+        if (r - l < s * 24f || b - t < s * 10f) return
+
+        // Frame: one cut corner (top-left, opposite the glyph column) plus a
+        // smaller cut on the bottom-right; square corners elsewhere.
+        val cutTL = min(height * 0.35f, s * 9f)
+        val cutBR = cutTL * 0.5f
         clipPath.reset()
-        clipPath.moveTo(s, innerTop)
-        clipPath.lineTo(s + notch, innerTop)
-        clipPath.lineTo(s + notch * 2f, height - s)
-        clipPath.lineTo(width - s, height - s)
-        clipPath.lineTo(width - s, innerTop)
+        clipPath.moveTo(l + cutTL, t)
+        clipPath.lineTo(r, t)
+        clipPath.lineTo(r, b - cutBR)
+        clipPath.lineTo(r - cutBR, b)
+        clipPath.lineTo(l, b)
+        clipPath.lineTo(l, t)
         clipPath.close()
 
         // Soft glow backing under the whole shape.
@@ -95,9 +108,9 @@ class NeonAlertPainter {
             fillPaint.color = withAlpha(0xFF000000.toInt(), 0.22f)
             canvas.save()
             canvas.clipPath(clipPath)
-            var y = innerTop + step
-            while (y < height - s) {
-                canvas.drawRect(s, y, width - s, y + step * 0.4f, fillPaint)
+            var y = t + step
+            while (y < b) {
+                canvas.drawRect(l, y, r, y + step * 0.4f, fillPaint)
                 y += step
             }
             canvas.restore()
@@ -106,16 +119,27 @@ class NeonAlertPainter {
         framePaint.color = withAlpha(color, 0.85f * glow)
         canvas.drawPath(clipPath, framePaint)
 
-        // Colour spine along the leading edge.
+        // Corner brackets on the square corners (top-right, bottom-left).
+        val bl = min(cutTL * 1.4f, s * 8f)
+        framePaint.strokeWidth = s * 1.4f
+        framePaint.color = withAlpha(color, 0.9f * glow)
+        canvas.drawLine(r - bl, t + s * 0.5f, r - s * 0.5f, t + s * 0.5f, framePaint)
+        canvas.drawLine(r - s * 0.5f, t + s * 0.5f, r - s * 0.5f, t + bl, framePaint)
+        canvas.drawLine(l + s * 0.5f, b - bl, l + s * 0.5f, b - s * 0.5f, framePaint)
+        canvas.drawLine(l + s * 0.5f, b - s * 0.5f, l + bl, b - s * 0.5f, framePaint)
+        framePaint.strokeWidth = s
+
+        // Severity glyph column on the leading edge: a vertical slot with the
+        // severity mark inside, separated from the label by a tick line.
+        val colW = min(height * 0.22f, s * 7f)
+        fillPaint.color = withAlpha(color, 0.16f * glow)
+        canvas.drawRect(l, t, l + colW, b, fillPaint)
         fillPaint.color = withAlpha(color, 0.9f * glow)
-        canvas.drawRect(s + notch * 0.4f, innerTop, s + notch * 0.9f, height - s, fillPaint)
-        fillPaint.color = withAlpha(mixColors(color, 0xFFFFFFFF.toInt(), 0.6f), glow)
-        canvas.drawRect(s + notch * 0.4f, innerTop, s + notch * 0.5f, height - s, fillPaint)
+        canvas.drawRect(l + colW, t, l + colW + s * 0.6f, b, fillPaint)
 
         // Pulsing double border for danger alerts.
         if (severity == Severity.Danger && dangerPulse && animate) {
-            val t = 0.5f + 0.5f * (nowMs % DANGER_PERIOD_MS) / DANGER_PERIOD_MS.toFloat()
-            val wave = 0.5f - 0.5f * cos(2.0 * Math.PI * t).toFloat()
+            val wave = 0.5f - 0.5f * cos(2.0 * Math.PI * (nowMs % DANGER_PERIOD_MS) / DANGER_PERIOD_MS.toDouble()).toFloat()
             framePaint.strokeWidth = s * 2.2f
             framePaint.color = withAlpha(color, (0.25f + 0.45f * wave) * glow)
             canvas.drawPath(clipPath, framePaint)
@@ -126,7 +150,7 @@ class NeonAlertPainter {
             val period = s * 8f
             val offset = (nowMs * 0.03f) % period
             canvas.save()
-            canvas.clipRect(s, 0f, width - s, hz)
+            canvas.clipRect(l, 0f, r, hz)
             hazardPaint.color = withAlpha(color, 0.55f * glow)
             var x = -period + offset
             while (x < width) {
@@ -134,42 +158,42 @@ class NeonAlertPainter {
                 x += period
             }
             hazardPaint.color = withAlpha(color, 0.10f * glow)
-            canvas.drawRect(s, 0f, width - s, hz, hazardPaint)
+            canvas.drawRect(l, 0f, r, hz, hazardPaint)
             canvas.restore()
         } else if (hz > 0f) {
             hazardPaint.color = withAlpha(color, 0.30f * glow)
-            canvas.drawRect(s, 0f, width - s, hz, hazardPaint)
+            canvas.drawRect(l, 0f, r, hz, hazardPaint)
         }
 
-        // Leading icon: triangle (danger/warning), diamond (info), check (success).
+        // Leading glyph inside the column: triangle (danger/warning), diamond
+        // (info), check (success).
         textPaint.textSize = textSizePx
         val fm = textPaint.fontMetrics
         val textH = fm.descent - fm.ascent
-        val cy = (innerTop + height) / 2f
+        val cy = (t + b) / 2f
         val baseline = cy + textH / 2f - fm.descent
-        var textX = s + notch * 2f + textH * 0.55f
+        val colCenter = l + colW / 2f
         if (icon) {
-            val r = textH * 0.30f
-            val ix = textX - textH * 0.55f
+            val gSize = min(colW, textH) * 0.34f
             iconPath.reset()
             when (severity) {
                 Severity.Danger, Severity.Warning -> {
-                    iconPath.moveTo(ix, cy - r)
-                    iconPath.lineTo(ix + r * 1.8f, cy + r)
-                    iconPath.lineTo(ix - r * 1.8f, cy + r)
+                    iconPath.moveTo(colCenter, cy - gSize)
+                    iconPath.lineTo(colCenter + gSize * 1.8f, cy + gSize)
+                    iconPath.lineTo(colCenter - gSize * 1.8f, cy + gSize)
                     iconPath.close()
                 }
                 Severity.Success -> {
                     chevronPaint.strokeWidth = s
                     chevronPaint.color = withAlpha(color, glow)
-                    canvas.drawLine(ix - r, cy, ix - r * 0.1f, cy + r, chevronPaint)
-                    canvas.drawLine(ix - r * 0.1f, cy + r, ix + r * 1.4f, cy - r, chevronPaint)
+                    canvas.drawLine(colCenter - gSize, cy, colCenter - gSize * 0.1f, cy + gSize, chevronPaint)
+                    canvas.drawLine(colCenter - gSize * 0.1f, cy + gSize, colCenter + gSize * 1.4f, cy - gSize, chevronPaint)
                 }
                 Severity.Info -> {
-                    iconPath.moveTo(ix, cy - r)
-                    iconPath.lineTo(ix + r, cy)
-                    iconPath.lineTo(ix, cy + r)
-                    iconPath.lineTo(ix - r, cy)
+                    iconPath.moveTo(colCenter, cy - gSize)
+                    iconPath.lineTo(colCenter + gSize, cy)
+                    iconPath.lineTo(colCenter, cy + gSize)
+                    iconPath.lineTo(colCenter - gSize, cy)
                     iconPath.close()
                 }
             }
@@ -179,7 +203,8 @@ class NeonAlertPainter {
             }
         }
 
-        // Label.
+        // Label, indented past the glyph column with a small gap.
+        var textX = l + colW + s * 0.6f + textH * 0.55f
         textPaint.textAlign = Paint.Align.LEFT
         textPaint.color = labelColor
         canvas.drawText(text.uppercase(), textX, baseline, textPaint)
@@ -188,10 +213,10 @@ class NeonAlertPainter {
         if (chevrons) {
             val cw = textH * 0.34f
             val chevronsW = cw * 3.3f
-            if (textX + textPaint.measureText(text.uppercase()) + chevronsW < width - s) {
+            if (textX + textPaint.measureText(text.uppercase()) + chevronsW < r) {
                 chevronPaint.strokeWidth = s
                 chevronPaint.color = withAlpha(color, 0.8f * glow)
-                var x = width - s - cw * 2.2f
+                var x = r - cw * 2.2f
                 for (i in 0 until 2) {
                     canvas.drawLine(x, cy - textH * 0.22f, x + cw, cy, chevronPaint)
                     canvas.drawLine(x + cw, cy, x, cy + textH * 0.22f, chevronPaint)

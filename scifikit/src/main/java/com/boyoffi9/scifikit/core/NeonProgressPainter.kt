@@ -9,10 +9,11 @@ import kotlin.math.min
 import kotlin.math.sin
 
 /**
- * Painter for labeled status/progress bars ("SYS. CORE LOAD 84.2%").
+ * Painter for labeled HUD data bars ("SYS. CORE LOAD 84.2%").
  *
- * Renders one bar: a bracketed track, a glowing fill with tick marks,
- * a monospace label on the left and a percentage readout on the right.
+ * A bracketed terminal-style track: square end brackets, an angular segmented
+ * fill with notch ticks, a monospace label on the left and a readout on the
+ * right. No rounded track, no soft caps.
  */
 class NeonProgressPainter {
 
@@ -36,7 +37,10 @@ class NeonProgressPainter {
 
     val barHeightPx: Float get() = strokePx * 8f
 
-    private val trackPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.STROKE }
+    private val trackPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.STROKE
+        strokeCap = Paint.Cap.SQUARE
+    }
     private val fillPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.FILL }
     private val tickPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.STROKE }
     private val segPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.FILL }
@@ -82,58 +86,70 @@ class NeonProgressPainter {
             0.72f + 0.28f * sin((nowMs % WARN_PERIOD_MS) / WARN_PERIOD_MS.toDouble() * 2.0 * PI).toFloat()
         } else 1f
 
-        // Track: thin outline bar with angled end caps.
+        // Track: square bracket ends + top/bottom rails. The brackets read as
+        // [ ... ] terminals, not rounded caps.
         trackPaint.strokeWidth = s
         trackPaint.color = withAlpha(trackColor, 0.35f)
-        val cap = min(barH / 2f, s * 4f)
-        canvas.drawLine(barLeft + cap, barTop, barRight - cap, barTop, trackPaint)
-        canvas.drawLine(barLeft + cap, barBottom, barRight - cap, barBottom, trackPaint)
-        canvas.drawLine(barLeft, midY, barLeft + cap, barTop, trackPaint)
-        canvas.drawLine(barLeft, midY, barLeft + cap, barBottom, trackPaint)
-        canvas.drawLine(barRight, midY, barRight - cap, barTop, trackPaint)
-        canvas.drawLine(barRight, midY, barRight - cap, barBottom, trackPaint)
+        val bracket = min(barH * 0.45f, s * 5f)
+        canvas.drawLine(barLeft + bracket, barTop, barRight - bracket, barTop, trackPaint)
+        canvas.drawLine(barLeft + bracket, barBottom, barRight - bracket, barBottom, trackPaint)
+        // Left bracket [
+        canvas.drawLine(barLeft, barTop, barLeft, barBottom, trackPaint)
+        canvas.drawLine(barLeft, barTop, barLeft + bracket, barTop, trackPaint)
+        canvas.drawLine(barLeft, barBottom, barLeft + bracket, barBottom, trackPaint)
+        // Right bracket ]
+        canvas.drawLine(barRight, barTop, barRight, barBottom, trackPaint)
+        canvas.drawLine(barRight - bracket, barTop, barRight, barTop, trackPaint)
+        canvas.drawLine(barRight - bracket, barBottom, barRight, barBottom, trackPaint)
 
-        // Fill: glowing slab with brighter segment bands and a hot leading edge.
+        // Fill: angular slab between the brackets, hard edges, with brighter
+        // segment bands and a chamfered leading edge pushing into the track.
+        val innerL = barLeft + bracket
+        val innerR = barRight - bracket
         if (show > 0f) {
-            val fillRight = barLeft + (barRight - barLeft) * show
+            val fillRight = innerL + (innerR - innerL) * show
+            val chamfer = min(barH * 0.3f, s * 3f)
             fillPaint.color = withAlpha(color, 0.16f * glow * warnPulse)
-            canvas.drawRect(barLeft + cap, barTop + s, fillRight, barBottom - s, fillPaint)
+            shapePath.reset()
+            shapePath.moveTo(innerL, barTop + s)
+            shapePath.lineTo(fillRight - chamfer, barTop + s)
+            shapePath.lineTo(fillRight, midY)
+            shapePath.lineTo(fillRight - chamfer, barBottom - s)
+            shapePath.lineTo(innerL, barBottom - s)
+            shapePath.close()
+            canvas.drawPath(shapePath, fillPaint)
             if (segmented) {
-                drawSegments(canvas, barLeft + cap, barRight - cap, barTop + s, barBottom - s, show, color, nowMs, warnPulse)
+                drawSegments(canvas, innerL, innerR, barTop + s, barBottom - s, show, color, nowMs, warnPulse)
             } else if (animate) {
-                // Angled bands give the fill a segmented, metered look; the most
-                // recent band is brightest so the bar reads as charging forward.
+                // Angled bands give the fill a metered look; the most recent
+                // band is brightest so the bar reads as charging forward.
                 val band = s * 9f
                 val phase = (nowMs * 0.05f) % band
-                var x = barLeft + cap - band + phase
-                while (x < fillRight) {
-                    val fresh = (fillRight - x) < band * 3f
+                var x = innerL - band + phase
+                while (x < fillRight - chamfer) {
+                    val fresh = (fillRight - chamfer - x) < band * 3f
                     segPaint.color = withAlpha(color, (if (fresh) 0.16f else 0.09f) * glow * warnPulse)
-                    canvas.drawRect(x, barTop + s, min(x + band * 0.45f, fillRight), barBottom - s, segPaint)
+                    canvas.drawRect(x, barTop + s, min(x + band * 0.45f, fillRight - chamfer), barBottom - s, segPaint)
                     x += band
                 }
             }
+            // Hot leading edge along the chamfer.
             fillPaint.color = withAlpha(color, 0.85f * glow * warnPulse)
-            canvas.drawRect(fillRight - s * 1.2f, barTop + s, fillRight, barBottom - s, fillPaint)
-            fillPaint.color = withAlpha(color, warnPulse)
-            canvas.drawRect(fillRight - s * 0.5f, barTop + s * 0.5f, fillRight, barBottom - s * 0.5f, fillPaint)
-            // Leading edge spark: a small triangle tip pushing into the track.
-            segPaint.color = withAlpha(color, glow * warnPulse)
             shapePath.reset()
-            shapePath.moveTo(fillRight, barTop)
-            shapePath.lineTo(fillRight + s * 2.2f, midY)
-            shapePath.lineTo(fillRight, barBottom)
+            shapePath.moveTo(fillRight - chamfer, barTop + s)
+            shapePath.lineTo(fillRight, midY)
+            shapePath.lineTo(fillRight - chamfer, barBottom - s)
             shapePath.close()
-            canvas.drawPath(shapePath, segPaint)
+            canvas.drawPath(shapePath, fillPaint)
         }
 
-        // Tick marks along the track.
+        // Tick marks along the track: small notches hanging from the top rail.
         if (ticks > 0) {
             tickPaint.strokeWidth = s * 0.8f
             tickPaint.color = withAlpha(trackColor, 0.5f)
-            val span = barRight - barLeft - 2f * cap
+            val span = innerR - innerL
             for (i in 1 until ticks) {
-                val x = barLeft + cap + span * i / ticks
+                val x = innerL + span * i / ticks
                 canvas.drawLine(x, barTop + s, x, barTop + barH * 0.3f, tickPaint)
             }
         }

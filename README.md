@@ -16,10 +16,10 @@ No GIFs, no Lottie, no image assets. Works in XML Views and Jetpack Compose.
 | Holo radar | `HoloRadarView` | `HoloRadar` | Radar with range rings and labels, degree ticks, HUD corner brackets, a rotating sweep with a fading trail, targeting reticles on fresh contacts, and blips that ping when the sweep reaches them. Six looks, from clean to CRT. |
 | Sci-fi card | `SciFiCardView` | `SciFiCard` | Content card with a cut-corner frame, layered border, accent bands, hazard stripes, target ring and optional grid. Five styles. |
 | Neon button | `NeonButtonView` | `NeonButton` | Button in six styles (outline, solid, ghost, charge, angled, slab). Cut-corner frame, inner echo line, corner notch marks; pressing it surges the glow and flickers the edge. |
-| Neon progress | `NeonProgressView` | `NeonProgress` | Labeled status bar with bracketed track, ticks and a glowing fill that turns to the warning colour past a threshold. |
+| Neon progress | `NeonProgressView` | `NeonProgress` | Labeled HUD data bar — square terminal brackets, angular fill with a chamfered leading edge, notch ticks, warning colour past a threshold. |
 | Neon badge | `NeonBadgeView` | `NeonBadge` | Hex-framed tag chip in five states (normal, success, warning, danger, muted), with an optional pulsing status dot. |
-| Neon gauge | `NeonGaugeView` | `NeonGauge` | Radial gauge — donut percent, speedometer dial or any arc span. Big mono readout in the middle, unit label under it, optional major ticks, warning colour past a threshold. |
-| Neon alert | `NeonAlertView` | `NeonAlert` | Alert banner in four severities (info, success, warning, danger) with a severity icon, colour spine, glow backing, scanline texture, optional marching hazard strip and trailing chevrons. |
+| Neon gauge | `NeonGaugeView` | `NeonGauge` | HUD instrument dial — cut-corner frame with corner brackets, butt-cap arc with a chevron needle head, notch ticks crossing the track, bracketed digital readout. Warning colour past a threshold. |
+| Neon alert | `NeonAlertView` | `NeonAlert` | HUD notification block in four severities (info, success, warning, danger) — cut-corner frame with corner brackets, a severity glyph column on the leading edge, scanline texture, optional marching hazard strip and trailing chevrons. |
 
 Both versions of each component call the same painter class, so they render identically.
 
@@ -41,7 +41,7 @@ Add the dependency to your app module:
 
 ```kotlin
 dependencies {
-    implementation("com.github.boy-offi9-inc:scifi-ui-kit:v0.10.0")
+    implementation("com.github.boy-offi9-inc:scifi-ui-kit:v0.12.0")
 }
 ```
 
@@ -49,7 +49,7 @@ Groovy DSL:
 
 ```groovy
 maven { url 'https://jitpack.io' }
-implementation 'com.github.boy-offi9-inc:scifi-ui-kit:v0.10.0'
+implementation 'com.github.boy-offi9-inc:scifi-ui-kit:v0.12.0'
 ```
 
 The version is the Git tag of the release. The badge above shows the latest one.
@@ -319,7 +319,7 @@ Colours default to the theme palette. A disabled button is dimmed and ignores pr
 
 ## Neon progress
 
-A labeled status bar in the HUD style: bracketed track, glowing fill with tick marks, a monospace label on the left and a zero-padded percentage on the right. Above the warning threshold the bar turns to the warning colour (default 85%) and breathes. `segmented` swaps the continuous fill for a 20-cell LED bank whose newest segment flickers.
+A labeled HUD data bar: square terminal brackets open the track, the fill is an angular slab with a chamfered leading edge pushing into it, notch ticks hang from the top rail, a monospace label sits on the left and a zero-padded percentage on the right. Above the warning threshold the bar turns to the warning colour (default 85%) and breathes. `segmented` swaps the continuous fill for a 20-cell LED bank whose newest segment flickers.
 
 ```xml
 <com.boyoffi9.scifikit.NeonProgressView
@@ -363,7 +363,7 @@ XML attributes: `sfText`, `sfState` (`normal`/`success`/`warning`/`danger`/`mute
 
 ## Neon gauge
 
-A radial gauge on one arc engine: a full donut (`sweepDegrees = 360`), a 300° speedometer dial with major ticks, or any arc in between. Three readouts — `Percent` (zero-padded `072`), `Value` (the raw value over `maxValue`) and `None`. The unit label renders small under the big mono number. Past the warning threshold (default 85%) the fill turns to the warning colour, so a redlining speedometer goes red on its own.
+A HUD instrument dial on one arc engine: a full-ring readout (`sweepDegrees = 360`), a 300° speedometer dial with major ticks, or any arc in between. The dial sits inside a cut-corner instrument frame with corner brackets on the square corners; the fill arc carries a chevron needle head at its leading edge and the ticks cross the track like notch marks. Three readouts — `Percent` (zero-padded `072`), `Value` (the raw value over `maxValue`) and `None` — render bracket-flanked in big mono, with the unit label small under. Past the warning threshold (default 85%) the fill, frame glow and needle all turn to the warning colour, so a redlining speedometer goes red on its own.
 
 ```xml
 <com.boyoffi9.scifikit.NeonGaugeView
@@ -403,7 +403,7 @@ The arc animates to new values (Compose tweens; the view eases on its own). XML 
 
 ## Neon alert
 
-An alert banner or status strip: "SCAN COMPLETE — NO HOSTILES DETECTED", "WARNING", "SIGNAL STABLE". Four severities, each with its own colour and icon shape — `Info` (diamond), `Success` (check), `Warning` (triangle), `Danger` (triangle). The left edge is notched, the frame is cut-corner, a colour spine runs down the leading edge over a glow backing and a scanline texture, and a `hazard` value greater than zero adds a marching hazard strip along the top. Danger alerts breathe with a pulsing border.
+A HUD notification block: "SCAN COMPLETE — NO HOSTILES DETECTED", "WARNING", "SIGNAL STABLE". Four severities, each with its own colour and glyph — `Info` (diamond), `Success` (check), `Warning` (triangle), `Danger` (triangle). The frame is cut-corner with corner brackets on the square corners; a severity glyph column fills the leading edge behind the mark, a scanline texture runs across the body, and a `hazard` value greater than zero adds a marching hazard strip along the top. Danger alerts breathe with a pulsing border.
 
 ```xml
 <com.boyoffi9.scifikit.NeonAlertView

@@ -2,7 +2,17 @@ name: build
 
 on:
   push:
+    branches: [ main ]
+    tags: [ 'v*' ]
   pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build:
@@ -18,3 +28,26 @@ jobs:
           gradle-version: 8.7
       - name: Build library
         run: gradle :scifikit:assembleRelease
+
+      # Interim builds stay in the Actions tab with a short retention so the
+      # artifact storage never grows into a junk drawer.
+      - name: Upload CI artifact
+        if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: scifikit-aar
+          path: scifikit/build/outputs/aar/*.aar
+          if-no-files-found: error
+          retention-days: 7
+
+      # Tagged builds ship the .aar (and its sources jar when present) to
+      # GitHub Releases. JitPack resolves the artifacts independently; the
+      # release is the human-downloadable record of the tag.
+      - name: Release library
+        if: ${{ startsWith(github.ref, 'refs/tags/v') }}
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            scifikit/build/outputs/aar/*.aar
+            scifikit/build/libs/*.jar
+          generate_release_notes: true

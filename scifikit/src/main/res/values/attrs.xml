@@ -189,6 +189,13 @@
         <attr name="sfAccentColor" />
     </declare-styleable>
 
+    <declare-styleable name="MatrixRainView">
+        <attr name="sfAccentColor" />
+        <attr name="sfGlyphSize" format="dimension" />
+        <attr name="sfDensity" format="float" />
+        <attr name="sfFlicker" format="boolean" />
+    </declare-styleable>
+
     <declare-styleable name="SciFiTheme">
         <attr name="sfThemeAccent" format="color" />
         <attr name="sfThemeSecondary" format="color" />

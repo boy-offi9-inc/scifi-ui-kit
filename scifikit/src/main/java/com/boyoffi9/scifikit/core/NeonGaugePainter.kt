@@ -163,7 +163,7 @@ class NeonGaugePainter {
             Readout.None -> ""
         }
         // Fit the digits inside the dial: shrink until label + brackets clear the track.
-        val fit = (rad - s * 2.2f) * 1.9f / maxOf(1, label.length * 0.62f)
+        val fit = (rad - s * 2.2f) * 1.9f / maxOf(1f, label.length * 0.62f)
         textPaint.textSize = minOf(textSizePx, fit)
         textPaint.color = textColor
         val fm = textPaint.fontMetrics

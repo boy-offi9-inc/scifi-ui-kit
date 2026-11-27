@@ -20,7 +20,6 @@ No GIFs, no Lottie, no image assets. Works in XML Views and Jetpack Compose.
 | Neon badge | `NeonBadgeView` | `NeonBadge` | Hex-framed tag chip in five states (normal, success, warning, danger, muted), with an optional pulsing status dot. |
 | Neon gauge | `NeonGaugeView` | `NeonGauge` | HUD instrument dial — cut-corner frame with corner brackets, butt-cap arc with a chevron needle head, notch ticks crossing the track, bracketed digital readout. Warning colour past a threshold. |
 | Neon alert | `NeonAlertView` | `NeonAlert` | HUD notification block in four severities (info, success, warning, danger) — cut-corner frame with corner brackets, a severity glyph column on the leading edge, scanline texture, optional marching hazard strip and trailing chevrons. |
-| Matrix rain | `MatrixRainView` | `MatrixRain` | Digital rain wall — columns of katakana/digit glyphs falling at their own speeds, bright white-hot leading character, fading tail, per-glyph flicker. Fills whatever size you give it. |
 
 Both versions of each component call the same painter class, so they render identically.
 
@@ -431,37 +430,6 @@ NeonAlert(
 ```
 
 The hazard strip marches while animating and freezes with animations off. XML attributes: `sfAlertText`, `sfSeverity` (`info`/`success`/`warning`/`danger`), `sfAlertFilled`, `sfAlertIcon`, `sfAlertChevrons`, `sfAlertHazard` (0–0.3 of the height, 0 is off), `sfAlertScanlines`, `sfAccentColor`. Compose overrides every severity colour individually. The view reads as "<severity> alert: <text>" to screen readers.
-
-## Matrix rain
-
-A digital rain wall: columns of katakana and digit glyphs falling at their own speeds, each with a white-hot leading character and a fading accent-coloured tail, glyphs flickering to new values as they descend. Give it any size — `match_parent` for a full-screen wall, a fixed-height band behind a HUD for a data-fall backdrop.
-
-```xml
-<com.boyoffi9.scifikit.MatrixRainView
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    app:sfGlyphSize="14dp"
-    app:sfDensity="0.55"
-    app:sfFlicker="true"
-    app:sfAccentColor="#00E5FF" />
-```
-
-```kotlin
-MatrixRain(
-    modifier = Modifier.fillMaxSize(),
-    glyphSize = 14.sp,
-    density = 0.55f,
-)
-
-// a quiet backdrop band
-MatrixRain(
-    modifier = Modifier.fillMaxWidth().height(120.dp),
-    accentColor = Color(0xFF00E5FF),
-    flicker = false,
-)
-```
-
-`density` (0.2–1.5) biases how fast the columns fall; `flicker` off gives a calmer, slower wall; animations off draws one calm static frame. XML attributes: `sfAccentColor`, `sfGlyphSize`, `sfDensity`, `sfFlicker`. Decorative by default — give it a content description only when the rain means something.
 
 ## Theming
 

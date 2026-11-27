@@ -16,9 +16,9 @@ No GIFs, no Lottie, no image assets. Works in XML Views and Jetpack Compose.
 | Holo radar | `HoloRadarView` | `HoloRadar` | Radar with range rings and labels, degree ticks, HUD corner brackets, a rotating sweep with a fading trail, targeting reticles on fresh contacts, and blips that ping when the sweep reaches them. Six looks, from clean to CRT. |
 | Sci-fi card | `SciFiCardView` | `SciFiCard` | Content card with a cut-corner frame, layered border, accent bands, hazard stripes, target ring and optional grid. Five styles. |
 | Neon button | `NeonButtonView` | `NeonButton` | Button in six styles (outline, solid, ghost, charge, angled, slab). Cut-corner frame, inner echo line, corner notch marks; pressing it surges the glow and flickers the edge. |
-| Neon progress | `NeonProgressView` | `NeonProgress` | Labeled HUD data bar — square terminal brackets, angular fill with a chamfered leading edge, notch ticks, warning colour past a threshold. |
+| Neon progress | `NeonProgressView` | `NeonProgress` | Labeled HUD data bar — square terminal brackets, layered neon fill (soft halo, bright filament core, hot chamfered leading edge), notch ticks, warning colour past a threshold. |
 | Neon badge | `NeonBadgeView` | `NeonBadge` | Hex-framed tag chip in five states (normal, success, warning, danger, muted), with an optional pulsing status dot. |
-| Neon gauge | `NeonGaugeView` | `NeonGauge` | HUD instrument dial — cut-corner frame with corner brackets, butt-cap arc with a chevron needle head, notch ticks crossing the track, bracketed digital readout. Warning colour past a threshold. |
+| Neon gauge | `NeonGaugeView` | `NeonGauge` | HUD instrument dial — the shared HUD chassis (chamfered panel, scanlines, brackets, traveling light), butt-cap arc with a bright head-cap, ticks on an outer ring, bracketed digital readout fitted inside the dial. Warning colour past a threshold. |
 | Neon alert | `NeonAlertView` | `NeonAlert` | HUD notification block in four severities (info, success, warning, danger) — cut-corner frame with corner brackets, a severity glyph column on the leading edge, scanline texture, optional marching hazard strip and trailing chevrons. |
 
 Both versions of each component call the same painter class, so they render identically.
@@ -319,7 +319,7 @@ Colours default to the theme palette. A disabled button is dimmed and ignores pr
 
 ## Neon progress
 
-A labeled HUD data bar: square terminal brackets open the track, the fill is an angular slab with a chamfered leading edge pushing into it, notch ticks hang from the top rail, a monospace label sits on the left and a zero-padded percentage on the right. Above the warning threshold the bar turns to the warning colour (default 85%) and breathes. `segmented` swaps the continuous fill for a 20-cell LED bank whose newest segment flickers.
+A labeled HUD data bar: square terminal brackets open the track, the fill is a layered neon slab — a soft halo around an angular fill with a bright filament running down its middle and a hot chamfered leading edge pushing into the track — notch ticks hang from the top rail, a monospace label sits on the left and a zero-padded percentage on the right. Above the warning threshold the bar turns to the warning colour (default 85%) and breathes. `segmented` swaps the continuous fill for a 20-cell LED bank, each cell glowing behind its own halo, whose newest segment flickers.
 
 ```xml
 <com.boyoffi9.scifikit.NeonProgressView
@@ -363,7 +363,7 @@ XML attributes: `sfText`, `sfState` (`normal`/`success`/`warning`/`danger`/`mute
 
 ## Neon gauge
 
-A HUD instrument dial on one arc engine: a full-ring readout (`sweepDegrees = 360`), a 300° speedometer dial with major ticks, or any arc in between. The dial sits inside a cut-corner instrument frame with corner brackets on the square corners; the fill arc carries a chevron needle head at its leading edge and the ticks cross the track like notch marks. Three readouts — `Percent` (zero-padded `072`), `Value` (the raw value over `maxValue`) and `None` — render bracket-flanked in big mono, with the unit label small under. Past the warning threshold (default 85%) the fill, frame glow and needle all turn to the warning colour, so a redlining speedometer goes red on its own.
+A HUD instrument dial on one arc engine: a full-ring readout (`sweepDegrees = 360`), a 300° speedometer dial with major ticks, or any arc in between. The dial sits on the shared HUD chassis — a chamfered panel with scanlines, corner brackets and a traveling light segment; the fill arc carries a bright head-cap at its leading edge and the ticks sit on an outer ring between the arc and the panel frame. Three readouts — `Percent` (zero-padded `072`), `Value` (the raw value over `maxValue`) and `None` — render bracket-flanked in big mono, with the unit label small under. Past the warning threshold (default 85%) the fill, chassis glow and head-cap all turn to the warning colour, so a redlining speedometer goes red on its own.
 
 ```xml
 <com.boyoffi9.scifikit.NeonGaugeView

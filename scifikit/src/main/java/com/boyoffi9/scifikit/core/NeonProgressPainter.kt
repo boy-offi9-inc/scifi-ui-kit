@@ -44,6 +44,10 @@ class NeonProgressPainter {
     private val fillPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.FILL }
     private val tickPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.STROKE }
     private val segPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.FILL }
+    private val corePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.STROKE
+        strokeCap = Paint.Cap.BUTT
+    }
     private val shapePath = Path()
     private val textPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         typeface = Typeface.create(Typeface.MONOSPACE, Typeface.BOLD)
@@ -89,7 +93,7 @@ class NeonProgressPainter {
         // Track: square bracket ends + top/bottom rails. The brackets read as
         // [ ... ] terminals, not rounded caps.
         trackPaint.strokeWidth = s
-        trackPaint.color = withAlpha(trackColor, 0.35f)
+        trackPaint.color = withAlpha(trackColor, 0.45f)
         val bracket = min(barH * 0.45f, s * 5f)
         canvas.drawLine(barLeft + bracket, barTop, barRight - bracket, barTop, trackPaint)
         canvas.drawLine(barLeft + bracket, barBottom, barRight - bracket, barBottom, trackPaint)
@@ -109,7 +113,6 @@ class NeonProgressPainter {
         if (show > 0f) {
             val fillRight = innerL + (innerR - innerL) * show
             val chamfer = min(barH * 0.3f, s * 3f)
-            fillPaint.color = withAlpha(color, 0.16f * glow * warnPulse)
             shapePath.reset()
             shapePath.moveTo(innerL, barTop + s)
             shapePath.lineTo(fillRight - chamfer, barTop + s)
@@ -117,7 +120,19 @@ class NeonProgressPainter {
             shapePath.lineTo(fillRight - chamfer, barBottom - s)
             shapePath.lineTo(innerL, barBottom - s)
             shapePath.close()
+            // Layered neon: a soft halo pass around the whole fill, then the
+            // slab, then a bright filament down the middle (0.14/4px + core,
+            // same layered-glow recipe as the rest of the kit).
+            fillPaint.style = Paint.Style.STROKE
+            fillPaint.strokeWidth = s * 4f
+            fillPaint.color = withAlpha(color, 0.14f * glow * warnPulse)
             canvas.drawPath(shapePath, fillPaint)
+            fillPaint.style = Paint.Style.FILL
+            fillPaint.color = withAlpha(color, 0.34f * glow * warnPulse)
+            canvas.drawPath(shapePath, fillPaint)
+            corePaint.strokeWidth = s * 0.9f
+            corePaint.color = withAlpha(color, 0.95f * glow * warnPulse)
+            canvas.drawLine(innerL, midY, fillRight - chamfer * 0.6f, midY, corePaint)
             if (segmented) {
                 drawSegments(canvas, innerL, innerR, barTop + s, barBottom - s, show, color, nowMs, warnPulse)
             } else if (animate) {
@@ -128,13 +143,22 @@ class NeonProgressPainter {
                 var x = innerL - band + phase
                 while (x < fillRight - chamfer) {
                     val fresh = (fillRight - chamfer - x) < band * 3f
-                    segPaint.color = withAlpha(color, (if (fresh) 0.16f else 0.09f) * glow * warnPulse)
+                    segPaint.color = withAlpha(color, (if (fresh) 0.30f else 0.20f) * glow * warnPulse)
                     canvas.drawRect(x, barTop + s, min(x + band * 0.45f, fillRight - chamfer), barBottom - s, segPaint)
                     x += band
                 }
             }
-            // Hot leading edge along the chamfer.
-            fillPaint.color = withAlpha(color, 0.85f * glow * warnPulse)
+            // Hot leading edge along the chamfer, with its own glow.
+            fillPaint.style = Paint.Style.STROKE
+            fillPaint.strokeWidth = s * 2.5f
+            fillPaint.color = withAlpha(color, 0.18f * glow * warnPulse)
+            shapePath.reset()
+            shapePath.moveTo(fillRight - chamfer, barTop + s)
+            shapePath.lineTo(fillRight, midY)
+            shapePath.lineTo(fillRight - chamfer, barBottom - s)
+            canvas.drawPath(shapePath, fillPaint)
+            fillPaint.style = Paint.Style.FILL
+            fillPaint.color = withAlpha(color, 0.95f * glow * warnPulse)
             shapePath.reset()
             shapePath.moveTo(fillRight - chamfer, barTop + s)
             shapePath.lineTo(fillRight, midY)
@@ -190,7 +214,10 @@ class NeonProgressPainter {
         for (i in 0 until lit) {
             val x = left + i * (segW + gap)
             val isHead = i == lit - 1
-            val a = if (isHead) (0.55f + 0.45f * headPulse) else 0.8f
+            val a = if (isHead) (0.55f + 0.45f * headPulse) else 0.85f
+            // Soft glow behind each lit cell so the LED bank reads as neon.
+            segPaint.color = withAlpha(color, 0.16f * glow * pulse)
+            canvas.drawRect(x - gap, top - s, min(x + segW + gap, right) + gap, bottom + s, segPaint)
             segPaint.color = withAlpha(color, a * glow * pulse)
             canvas.drawRect(x, top, min(x + segW, right), bottom, segPaint)
         }

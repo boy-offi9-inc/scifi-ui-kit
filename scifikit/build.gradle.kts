@@ -51,11 +51,7 @@ afterEvaluate {
                 from(components["release"])
                 groupId = "com.github.boy-offi9-inc"
                 artifactId = "scifikit"
-<<<<<<< HEAD
                 version = "0.14.0"
-=======
-                version = "0.14.0"
->>>>>>> parent of 25f6efc (feat: MatrixRain — digital rain wall (v0.13.0))
             }
         }
     }

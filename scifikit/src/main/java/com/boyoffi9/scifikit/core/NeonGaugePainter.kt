@@ -2,7 +2,6 @@ package com.boyoffi9.scifikit.core
 
 import android.graphics.Canvas
 import android.graphics.Paint
-import android.graphics.Path
 import android.graphics.RectF
 import android.graphics.Typeface
 import kotlin.math.cos
@@ -10,9 +9,10 @@ import kotlin.math.min
 import kotlin.math.sin
 
 /**
- * Painter for HUD instrument dials: a cut-corner instrument frame, a butt-cap
- * arc with an angular leading edge, notch ticks crossing the frame, and a
- * bracketed digital readout. Cockpit hardware, not a fitness donut.
+ * Painter for HUD instrument dials: the shared HUD chassis (chamfered frame,
+ * glow, scanlines, brackets, traveling light), a butt-cap arc with a bright
+ * head-cap, ticks on an outside ring, and a bracketed digital readout that
+ * lives inside the dial. Cockpit hardware, not a fitness donut.
  */
 class NeonGaugePainter {
 
@@ -63,9 +63,8 @@ class NeonGaugePainter {
         typeface = Typeface.MONOSPACE
         letterSpacing = 0.12f
     }
-    private val framePath = Path()
-    private val headPath = Path()
     private val arc = RectF()
+    private val panel = HudFramePainter()
 
     fun isAnimating(): Boolean {
         val p = progress.coerceIn(0f, 1f)
@@ -80,47 +79,32 @@ class NeonGaugePainter {
 
         val color = if (p >= warning) warningColor else accentColor
 
-        // Instrument frame: cut corners on the top-left and bottom-right, like
-        // the card/button silhouette. The dial lives inside it. Insets scale
-        // with the view, not the stroke, so small/high-density views still draw.
-        val l = s
-        val t = s
+        // Panel: the shared HUD chassis — chamfered frame, layered glow, scanlines,
+        // white-mixed corner brackets and the traveling light segment — identical
+        // to every other component in the kit. Warning shifts the whole panel.
+        panel.accentColor = color
+        panel.glow = glow
+        panel.chamferPx = s * 5f
+        panel.strokePx = s * 0.75f
+        panel.bracketPx = s * 7f
+        panel.scanlineGapPx = s * 1.5f
+        panel.scanlines = true
+        panel.sweep = animate
+        panel.animate = animate
+        panel.draw(canvas, width, height, nowMs)
+
+        // Dial arc, inset inside the panel with room for ticks outside the track
+        // and the readout row. The readout lives inside the dial, never on it.
+        val inset = panel.insetPx + s
+        val l = inset
+        val t = inset
         val r = width - l
         val b = height - t
         if (r - l < s * 6f || b - t < s * 6f) return
-        val cut = min(r - l, b - t) * 0.10f
-        framePath.reset()
-        framePath.moveTo(l + cut, t)
-        framePath.lineTo(r, t)
-        framePath.lineTo(r, b - cut)
-        framePath.lineTo(r - cut, b)
-        framePath.lineTo(l, b)
-        framePath.lineTo(l, t + cut)
-        framePath.close()
-
-        framePaint.strokeWidth = s * 4f
-        framePaint.color = withAlpha(color, 0.06f * glow)
-        canvas.drawPath(framePath, framePaint)
-        framePaint.strokeWidth = s
-        framePaint.color = withAlpha(color, 0.55f * glow)
-        canvas.drawPath(framePath, framePaint)
-
-        // Corner brackets on the uncut corners (top-right, bottom-left).
-        val bl = min(cut * 1.6f, s * 7f)
-        framePaint.color = withAlpha(color, 0.9f * glow)
-        // top-right bracket
-        canvas.drawLine(r - bl, t + s, r - s, t + s, framePaint)
-        canvas.drawLine(r - s, t + s, r - s, t + bl, framePaint)
-        // bottom-left bracket
-        canvas.drawLine(l + s, b - bl, l + s, b - s, framePaint)
-        canvas.drawLine(l + s, b - s, l + bl, b - s, framePaint)
-
-        // Dial arc, inset from the frame with room for the readout row.
         val cx = width / 2f
-        val dialTop = t + s
-        val cy = dialTop + (b - dialTop) / 2f
-        val maxR = min(r - l, b - dialTop) / 2f - s * 1.5f
-        val rad = maxR - s / 2f
+        val cy = t + (b - t) / 2f
+        val maxR = min(r - l, b - t) / 2f - s * 2.8f
+        val rad = maxR
         if (rad <= 0f) return
 
         val sweep = sweepDegrees.coerceIn(30f, 360f)
@@ -133,8 +117,8 @@ class NeonGaugePainter {
         trackPaint.color = withAlpha(trackColor, 0.30f)
         canvas.drawArc(arc, start, sweep, false, trackPaint)
 
-        // Fill arc with a bright leading-edge marker: a chevron wedge at the
-        // arc head, squared off like an instrument needle.
+        // Fill arc with a bright head-cap: a short, brighter segment along the arc
+        // at the leading edge. No wedge, no needle — instrument caps, not arrows.
         if (show > 0f) {
             fillPaint.strokeWidth = s
             fillPaint.color = withAlpha(color, 0.9f * glow)
@@ -143,52 +127,57 @@ class NeonGaugePainter {
             fillPaint.color = withAlpha(color, 0.10f * glow)
             canvas.drawArc(arc, start, sweep * show, false, fillPaint)
 
-            val headDeg = Math.toRadians((start + sweep * show).toDouble())
-            val hx = cx + rad * Math.cos(headDeg).toFloat()
-            val hy = cy + rad * Math.sin(headDeg).toFloat()
-            val hw = s * 1.6f
-            headPath.reset()
-            headPath.moveTo(hx + hw * cos(headDeg + Math.PI / 2).toFloat(), hy + hw * sin(headDeg + Math.PI / 2).toFloat())
-            headPath.lineTo(hx + hw * 2.2f * cos(headDeg).toFloat(), hy + hw * 2.2f * sin(headDeg).toFloat())
-            headPath.lineTo(hx + hw * cos(headDeg - Math.PI / 2).toFloat(), hy + hw * sin(headDeg - Math.PI / 2).toFloat())
-            headPath.close()
-            fillPaint.style = Paint.Style.FILL
-            fillPaint.color = withAlpha(color, glow)
-            canvas.drawPath(headPath, fillPaint)
-            fillPaint.style = Paint.Style.STROKE
+            val headDeg = start + sweep * show
+            val cap = min(9f, sweep / 8f)
+            fillPaint.strokeWidth = s * 1.7f
+            fillPaint.color = mixColors(color, 0xFFFFFFFF.toInt(), 0.45f)
+            canvas.drawArc(arc, headDeg - cap / 2f, cap, false, fillPaint)
         }
 
-        // Major ticks crossing the track: notch marks, not decoration dots.
+        // Major ticks on an outside ring between the track and the panel frame:
+        // thin, accent-tinted, never crossing the arc or reaching the readout.
         if (ticks > 1) {
-            tickPaint.strokeWidth = s * 0.7f
-            tickPaint.color = withAlpha(trackColor, 0.75f)
-            val inner = rad - s * 1.8f
-            val outer = rad + s * 1.4f
-            for (i in 0 until ticks) {
-                val angle = Math.toRadians((start + sweep * i / (ticks - 1)).toDouble())
-                val cosA = Math.cos(angle).toFloat()
-                val sinA = Math.sin(angle).toFloat()
-                canvas.drawLine(
-                    cx + inner * cosA, cy + inner * sinA,
-                    cx + outer * cosA, cy + outer * sinA,
-                    tickPaint,
-                )
+            tickPaint.strokeWidth = s * 0.5f
+            tickPaint.color = withAlpha(color, 0.55f * glow)
+            val inner = rad + s * 1.1f
+            val outer = min(rad + s * 2.3f, min(r - cx, cy - t) - s * 0.4f)
+            if (outer > inner) {
+                for (i in 0 until ticks) {
+                    val angle = Math.toRadians((start + sweep * i / (ticks - 1)).toDouble())
+                    val cosA = Math.cos(angle).toFloat()
+                    val sinA = Math.sin(angle).toFloat()
+                    canvas.drawLine(
+                        cx + inner * cosA, cy + inner * sinA,
+                        cx + outer * cosA, cy + outer * sinA,
+                        tickPaint,
+                    )
+                }
             }
         }
 
         // Center readout: digital value flanked by bracket marks, unit row under.
         textPaint.textSize = textSizePx
-        textPaint.color = textColor
         val label = when (readout) {
             Readout.Percent -> "%03d".format((show * 100f).toInt())
             Readout.Value -> formatValue(value * show)
             Readout.None -> ""
         }
+        // Fit the digits inside the dial: shrink until label + brackets clear the track.
+        val fit = (rad - s * 2.2f) * 1.9f / maxOf(1, label.length * 0.62f)
+        textPaint.textSize = minOf(textSizePx, fit)
+        textPaint.color = textColor
         val fm = textPaint.fontMetrics
         val textH = fm.descent - fm.ascent
         val unitShift = if (unit.isEmpty()) 0f else textH * 0.22f
         val midY = cy - fm.descent + textH / 2f - unitShift
         if (label.isNotEmpty()) {
+            // Faux glow: a soft accent pass under the crisp digits (no blur tricks).
+            textPaint.color = withAlpha(color, 0.30f * glow)
+            val g = s * 0.6f
+            for ((dx, dy) in listOf(0f to -g, 0f to g, -g to 0f, g to 0f)) {
+                canvas.drawText(label, cx + dx, midY + dy, textPaint)
+            }
+            textPaint.color = textColor
             canvas.drawText(label, cx, midY, textPaint)
             // Square brackets flanking the digits.
             val labelW = textPaint.measureText(label)

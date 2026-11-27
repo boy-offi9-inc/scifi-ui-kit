@@ -217,7 +217,7 @@ class NeonProgressPainter {
             val a = if (isHead) (0.55f + 0.45f * headPulse) else 0.85f
             // Soft glow behind each lit cell so the LED bank reads as neon.
             segPaint.color = withAlpha(color, 0.16f * glow * pulse)
-            canvas.drawRect(x - gap, top - s, min(x + segW + gap, right) + gap, bottom + s, segPaint)
+            canvas.drawRect(x - gap, top - strokePx, min(x + segW + gap, right) + gap, bottom + strokePx, segPaint)
             segPaint.color = withAlpha(color, a * glow * pulse)
             canvas.drawRect(x, top, min(x + segW, right), bottom, segPaint)
         }
